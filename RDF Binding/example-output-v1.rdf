@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<rdf:RDF
+    xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+    xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#"
+    xmlns:owl="http://www.w3.org/2002/07/owl#">
+  <!-- Skeleton -->
+  <owl:Ontology rdf:about="">
+    <rdfs:label xml:lang="en">DDI Core Vocabulary</rdfs:label>
+    <rdfs:comment xml:lang="en">This is the DDI Core Vocabulary, an RDF Schema vocabulary that defines foundational concepts For describing the domain of statistics.</rdfs:comment>
+  </owl:Ontology>
+
+  <!-- A class -->
+  <owl:Class rdf:about="#MyExample">
+    <rdf:type rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#Class"/>
+    <rdfs:isDefinedBy rdf:resource=""/>
+    <rdfs:label xml:lang="en">my example</rdfs:label>
+  </owl:Class>
+</rdf:RDF>
