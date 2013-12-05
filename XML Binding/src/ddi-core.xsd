@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns="ddi:core" targetNamespace="ddi:core" elementFormDefault="qualified">
+    
+    <xs:complexType name="ReferenceType">
+        <xs:annotation>
+            <xs:documentation>Used for referencing an identified entity expressed in DDI XML, either by a URN and/or an ID. If both are supplied, the URN takes precedence. At a minimum, one or the other is required. The lateBound attribute has a boolean value, which - if set to true - indicates that the latest version should be used.</xs:documentation>
+        </xs:annotation>
+        <xs:simpleContent>
+            <xs:extension base="xs:string">
+                <xs:attribute name="isExternal" type="xs:boolean" default="false">
+                    <xs:annotation>
+                        <xs:documentation>Indicates that the reference is made to an external source. If the value is true, then a URI must be provided.</xs:documentation>
+                    </xs:annotation>
+                </xs:attribute>
+                <xs:attribute name="URI" type="xs:anyURI" use="optional">
+                    <xs:annotation>
+                        <xs:documentation>URI identifying the location of an external reference.</xs:documentation>
+                    </xs:annotation>
+                </xs:attribute>
+                <xs:attribute name="isReference" type="xs:boolean" fixed="true">
+                    <xs:annotation>
+                        <xs:documentation>A fixed attribute value identifying which elements are references.</xs:documentation>
+                    </xs:annotation>
+                </xs:attribute>
+                <xs:attribute name="lateBound" type="xs:boolean" default="false"/>
+                <xs:attribute name="objectLanguage" type="xs:language" use="optional">
+                    <xs:annotation>
+                        <xs:documentation>Specifies the language (or language-locale pair) to use for display in references to objects which have multiple languages available.</xs:documentation>
+                    </xs:annotation>
+                </xs:attribute>   
+                <xs:attribute name="sourceContext" type="xs:anyURI" use="optional">
+                    <xs:annotation>
+                        <xs:documentation>Provide a DDI URN for the version of the parent maintainable that shows the full context for the referenced object. This is used only when the context of the object within the current version of a maintainable is important to the user and this version is later than the one containing the object itself. For example a occupation classification may be unchanged since version 1.0 of its maintainable but at the point of reference the current version of the maintainable containing the original structure is at version 2.0 etc..</xs:documentation>
+                    </xs:annotation>
+                </xs:attribute>    
+            </xs:extension>
+        </xs:simpleContent>
+    </xs:complexType>
+     
+</xs:schema>
