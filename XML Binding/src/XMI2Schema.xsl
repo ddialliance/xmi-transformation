@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="UTF-8"?>
+﻿<?xml version="1.0" encoding="UTF-8"?>
 <xsl:stylesheet xmlns:xsl="http://www.w3.org/1999/XSL/Transform"
     xmlns:xs="http://www.w3.org/2001/XMLSchema"  
     xmlns:uml="http://schema.omg.org/spec/UML/2.1" 
@@ -82,22 +82,27 @@
             <xsl:attribute name="name"><xsl:value-of select="@name"/><xsl:text>Type</xsl:text></xsl:attribute>
             <xs:complexContent>
                 <xs:extension>
-                    <xsl:if test="generalization">
-                        <xsl:attribute name="base">
-                            <xsl:choose>
-                                <xsl:when test="//packagedElement[@xmi:id='EAID_ABB8061C_9872_4a25_9083_71EDD5DAA888']/../@name!=$processedNamespace">
-                                    <xsl:variable name="tns" select="//packagedElement[@xmi:id='EAID_ABB8061C_9872_4a25_9083_71EDD5DAA888']/../@name"/>
-                                    <xsl:value-of select="$properties/SchemaCreationProperties/Namespaces/Namespace[@name=$tns]/@prefix"/>
-                                    <xsl:text>:</xsl:text>
-                                    <xsl:value-of select="//packagedElement[@xmi:id=$paid]/@name"/>
-                                </xsl:when>
-                                <xsl:otherwise>
-                                    <xsl:value-of select="//packagedElement[@xmi:id=$paid]/@name"/>
-                                </xsl:otherwise>
-                            </xsl:choose>
-                            <xsl:text>Type</xsl:text>
-                        </xsl:attribute>
-                    </xsl:if>
+                    <xsl:attribute name="base">
+                        <xsl:choose>
+                          <xsl:when test="generalization">
+                               <xsl:choose>
+                                    <xsl:when test="//packagedElement[@xmi:id='EAID_ABB8061C_9872_4a25_9083_71EDD5DAA888']/../@name!=$processedNamespace">
+                                        <xsl:variable name="tns" select="//packagedElement[@xmi:id='EAID_ABB8061C_9872_4a25_9083_71EDD5DAA888']/../@name"/>
+                                        <xsl:value-of select="$properties/SchemaCreationProperties/Namespaces/Namespace[@name=$tns]/@prefix"/>
+                                        <xsl:text>:</xsl:text>
+                                        <xsl:value-of select="//packagedElement[@xmi:id=$paid]/@name"/>
+                                    </xsl:when>
+                                    <xsl:otherwise>
+                                        <xsl:value-of select="//packagedElement[@xmi:id=$paid]/@name"/>
+                                    </xsl:otherwise>
+                                </xsl:choose>
+                                <xsl:text>Type</xsl:text>
+                          </xsl:when>
+                          <xsl:otherwise>
+                              <xsl:value-of select="ddic:DDIObjectType"/>
+                          </xsl:otherwise>
+                        </xsl:choose>
+                    </xsl:attribute>
                     <xs:sequence>
                         <xsl:apply-templates select="ownedAttribute[@xmi:type='uml:Property']"/>
                     </xs:sequence>
