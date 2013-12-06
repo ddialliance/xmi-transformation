@@ -152,11 +152,22 @@
                                 <xsl:text>xs:dateTime</xsl:text>
                             </xsl:when>
                             <xsl:when test="type/@xmi:type = 'String'">
-                                <xsl:text>ddic:String</xsl:text>
+                                <xsl:text>xs:string</xsl:text>
                             </xsl:when>
                             <xsl:when test="type/@xmi:type = 'InternationalisedString'">
                                 <xsl:text>ddic:InternationalisedString</xsl:text>
                             </xsl:when>
+
+                          <xsl:when test="type/@xmi:type = 'Boolean'">
+                            <xsl:text>xs:boolean</xsl:text>
+                          </xsl:when>
+                          <xsl:when test="type/@xmi:type = 'Integer'">
+                            <xsl:text>xs:int</xsl:text>
+                          </xsl:when>
+                          <xsl:when test="type/@xmi:type = 'URI'">
+                            <xsl:text>xs:anyURI</xsl:text>
+                          </xsl:when>
+                          
                             <xsl:when test="type/@xmi:type = ''">
                                 <xsl:text>ALERT empty type</xsl:text>
                             </xsl:when>
