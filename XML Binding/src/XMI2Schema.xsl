@@ -151,6 +151,19 @@
                             <xsl:when test="contains(type/@xmi:idref, 'dateTime')">
                                 <xsl:text>xs:dateTime</xsl:text>
                             </xsl:when>
+                            <xsl:when test="type/@xmi:type = 'String'">
+                                <xsl:text>ddic:String</xsl:text>
+                            </xsl:when>
+                            <xsl:when test="type/@xmi:type = 'InternationalisedString'">
+                                <xsl:text>ddic:InternationalisedString</xsl:text>
+                            </xsl:when>
+                            <xsl:when test="type/@xmi:type = ''">
+                                <xsl:text>ALERT empty type</xsl:text>
+                            </xsl:when>
+                            <xsl:otherwise>
+                                <xsl:text>TODO </xsl:text>
+                                <xsl:value-of select="type/@xmi:type"/>
+                            </xsl:otherwise>
 <!-- ToDo more data types -->
                         </xsl:choose>
                     </xsl:attribute>
