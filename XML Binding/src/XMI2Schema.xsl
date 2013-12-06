@@ -3,7 +3,7 @@
     xmlns:xs="http://www.w3.org/2001/XMLSchema"  
     xmlns:uml="http://schema.omg.org/spec/UML/2.1" 
     xmlns:xmi="http://schema.omg.org/spec/XMI/2.1"
-    xmlns:ddic="ddi-core"
+    xmlns:ddic="Core"
     xmlns:ddifunc="ddi:functions"
     exclude-result-prefixes="ddifunc uml xmi"
     version="2.0">
@@ -91,6 +91,7 @@
                                         <xsl:value-of select="$properties/SchemaCreationProperties/Namespaces/Namespace[@name=$tns]/@prefix"/>
                                         <xsl:text>:</xsl:text>
                                         <xsl:value-of select="//packagedElement[@xmi:id=$paid]/@name"/>
+                                      <xsl:text>test1</xsl:text>
                                     </xsl:when>
                                     <xsl:otherwise>
                                         <xsl:value-of select="//packagedElement[@xmi:id=$paid]/@name"/>
@@ -99,7 +100,7 @@
                                 <xsl:text>Type</xsl:text>
                           </xsl:when>
                           <xsl:otherwise>
-                              <xsl:value-of select="ddic:DDIObjectType"/>
+                            <xsl:text>ddic:DDIObjectType</xsl:text>
                           </xsl:otherwise>
                         </xsl:choose>
                     </xsl:attribute>
