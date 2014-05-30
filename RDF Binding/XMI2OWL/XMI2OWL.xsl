@@ -195,9 +195,24 @@
             <xsl:value-of select="$datatypePropertyName"/>
         </xsl:variable>
         
-        <!-- range class name -->
+        <!-- range class name or type -->
+        <xsl:variable name="xmitype" select="lower-case(type/@xmi:type)"/>
         <xsl:variable name="rangeClassName">
-            <xsl:value-of select="ddifunc:rename(./type/@xmi:idref, 'class')"/>
+            <xsl:choose>
+                <xsl:when test="$xmitype = 'uml:primitivetype'">
+                    <xsl:call-template name="defineType">
+                        <xsl:with-param name="xmitype" select="lower-case(tokenize(type/@href,'#')[last()])"/>
+                    </xsl:call-template>
+                </xsl:when>
+                <xsl:when test="$xmitype != ''">
+                    <xsl:call-template name="defineType">
+                        <xsl:with-param name="xmitype" select="$xmitype"/>
+                    </xsl:call-template>
+                </xsl:when>
+                <xsl:otherwise>
+                    <xsl:value-of select="ddifunc:rename(./type/@xmi:idref, 'class')"/>
+                </xsl:otherwise>
+            </xsl:choose>
         </xsl:variable>
         
         <!-- label -->
@@ -213,16 +228,24 @@
         </xsl:variable>
         
         <xsl:text disable-output-escaping="yes"><![CDATA[	
-    <!-- UML attribute -->
-    <owl:DatatypeProperty rdf:about="]]></xsl:text><xsl:value-of select="$datatypePropertyIRI"/><xsl:text disable-output-escaping="yes"><![CDATA[">
+        <!-- UML attribute -->
+        <owl:DatatypeProperty rdf:about="]]></xsl:text><xsl:value-of select="$datatypePropertyIRI"/><xsl:text disable-output-escaping="yes"><![CDATA[">
         <rdf:type rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#Property"/>
         <rdfs:isDefinedBy rdf:resource="]]></xsl:text><xsl:value-of select="$isDefinedBy"/><xsl:text disable-output-escaping="yes"><![CDATA["/>
         <rdfs:label xml:lang="en">]]></xsl:text><xsl:value-of select="$label"/><xsl:text disable-output-escaping="yes"><![CDATA[</rdfs:label>
-        <rdfs:domain rdf:resource="]]></xsl:text><xsl:value-of select="$domainClassIRI"/><xsl:text disable-output-escaping="yes"><![CDATA["/>
-        <rdfs:range rdf:resource="#]]></xsl:text><xsl:value-of select="$rangeClassName"/><xsl:text disable-output-escaping="yes"><![CDATA["/>
-    </owl:DatatypeProperty>
-]]>     </xsl:text>
-        
+        <rdfs:domain rdf:resource="]]></xsl:text><xsl:value-of select="$domainClassIRI"/><xsl:text disable-output-escaping="yes">
+        <![CDATA["/><rdfs:range rdf:resource="]]>
+        </xsl:text>
+        <xsl:choose>
+            <xsl:when test="$xmitype != ''"/>
+            <xsl:otherwise>
+                <xsl:text>#</xsl:text>
+            </xsl:otherwise>
+        </xsl:choose>
+        <xsl:value-of select="$rangeClassName"/>
+        <xsl:text disable-output-escaping="yes">
+                <![CDATA["/></owl:DatatypeProperty>]]>   
+        </xsl:text>        
     </xsl:template>
     <!-- ..... -->
     
@@ -613,10 +636,71 @@
         
         <xsl:text disable-output-escaping="yes"><![CDATA[	
 </rdf:RDF>
-]]></xsl:text>
-        
+]]></xsl:text>    
     </xsl:template>
     <!-- ..... -->
+        
+    <!-- define primitive types -->
+    <xsl:template name="defineType">
+    <xsl:param name="xmitype"/>
+        <xsl:variable name="tmp">
+            <xsl:choose>
+                <!-- string -->
+                <xsl:when test="contains($xmitype, 'string')">
+                    <xsl:text>string</xsl:text>
+                </xsl:when>
+                <xsl:when test="contains($xmitype,  'char')">
+                    <xsl:text>string</xsl:text>
+                </xsl:when>
+                
+                <!-- uml unlimitednatural eq string -->                
+                <xsl:when test="contains($xmitype,  'unlimitednatural')">
+                    <xsl:text>string</xsl:text>
+                </xsl:when>
+                
+                <!-- boolean -->
+                <xsl:when test="contains($xmitype,  'boolean')">
+                    <xsl:text>boolean</xsl:text>
+                </xsl:when>
+                
+                <!-- numeric -->
+                <xsl:when test="contains($xmitype, 'integer')">
+                    <xsl:text>int</xsl:text>
+                </xsl:when>
+                <xsl:when test="contains($xmitype, 'long')">
+                    <xsl:text>long</xsl:text>
+                </xsl:when>
+                
+                <!-- real -->
+                <xsl:when test="contains($xmitype, 'float')">
+                    <xsl:text>decimal</xsl:text>
+                </xsl:when>
+                
+                <!-- date time -->
+                <xsl:when test="contains($xmitype, 'datetime')">
+                    <xsl:text>dateTime</xsl:text>
+                </xsl:when>
+                
+                <!-- uri -->
+                <xsl:when test="contains($xmitype, 'uri')">
+                    <xsl:text>anyURI</xsl:text>
+                </xsl:when>
+                
+                <!-- empty and todo types -->
+                <xsl:when test="$xmitype =''">
+                    <xsl:text>ALERT empty type</xsl:text>
+                </xsl:when>
+                <xsl:otherwise>
+                    <xsl:text>TODO </xsl:text>
+                    <xsl:value-of select="$xmitype"/>
+                </xsl:otherwise>
+                
+                <!-- ToDo more data types -->
+            </xsl:choose>
+        </xsl:variable>
+        
+        <xsl:value-of select="concat('http://www.w3.org/2001/XMLSchema#', $tmp)"/>
+    </xsl:template>
     
     <!-- ............... -->
     <!-- ontology metadata -->
