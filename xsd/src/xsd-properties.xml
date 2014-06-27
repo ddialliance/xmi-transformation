@@ -1,13 +1,14 @@
 ﻿<?xml version="1.0" encoding="UTF-8"?>
 <SchemaCreationProperties version="1.0.0">
     <Namespaces>
-        <Namespace name="Core" prefix="ddic" location="ddi-core.xsd"></Namespace>
+        <Namespace name="Core" prefix="ddic" location="ddi-core.xsd"/>
         <Namespace name="Util" prefix="ddiu" location="ddi-util.xsd"/>
         <Namespace name="Foundational" prefix="ddif" location="ddi-foundation.xsd">
             <Import>ddic</Import>
             <Import>ddiu</Import>
         </Namespace>
-        <Namespace name="SimpleDataDescription" prefix="ddisdd" location="ddi-simpledatadescription.xsd">
+        <Namespace name="SimpleDataDescription" prefix="ddisdd"
+            location="ddi-simpledatadescription.xsd">
             <Import>ddic</Import>
             <Import>ddiu</Import>
             <Import>ddif</Import>
@@ -30,11 +31,12 @@
             <Import>ddif</Import>
             <Import>ddisi</Import>
         </Namespace>
-        
+
         <!-- for testing -->
-        <Namespace name="org.ddialliance.test.PackageExtended" prefix="dditesta" location="PackageExtended.xsd">
-        </Namespace>
-        <Namespace name="org.ddialliance.test.PackageExtending" prefix="dditestb" location="PackageExtending.xsd">
+        <Namespace name="org.ddialliance.test.PackageExtended" prefix="dditesta"
+            location="PackageExtended.xsd"> </Namespace>
+        <Namespace name="org.ddialliance.test.PackageExtending" prefix="dditestb"
+            location="PackageExtending.xsd">
             <Import>dditesta</Import>
         </Namespace>
     </Namespaces>

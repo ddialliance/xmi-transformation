@@ -2,32 +2,22 @@
 <xsl:stylesheet xmlns:xsl="http://www.w3.org/1999/XSL/Transform"
     xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:uml="http://schema.omg.org/spec/UML/2.1"
     xmlns:xmi="http://schema.omg.org/spec/XMI/2.1" xmlns:ddic="Core" xmlns:ddifunc="ddi:functions"
-    xmlns:xhtml="http://www.w3.org/1999/xhtml"
-    exclude-result-prefixes="ddifunc uml xmi" version="2.0">
-
-    <!-- xslt options -->
-    <xsl:import href="support.xsl"/>
+    xmlns:xhtml="http://www.w3.org/1999/xhtml" exclude-result-prefixes="ddifunc uml xmi"
+    version="2.0">
 
     <!-- imports -->
+    <xsl:import href="../../util/src/support.xsl"/>
+
+    <!-- options -->
     <xsl:output method="xml" indent="yes"/>
 
     <!-- params -->
     <xsl:param name="processedNamespace"/>
 
     <!-- variables -->
-    <xsl:variable name="properties" select="document('SchemaCreationProperties.xml')"/>
-    <!--  <xsl:param name="primaryNamespaceURI">http://www.ohmygodmywifeisgerman.com</xsl:param>
-    <xsl:param name="namespacePrefix">http://some.prefix.com/names/</xsl:param>-->
+    <xsl:variable name="properties" select="document('xsd-properties.xml')"/>
 
     <xsl:template match="xmi:XMI">
-        <!-- <xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" 
-                xmlns="ddi:datacollection:3_1" 
-                xmlns:r="ddi:reusable:3_1" 
-                xmlns:l="ddi:logicalproduct:3_1" 
-                targetNamespace="ddi:datacollection:3_1" 
-                elementFormDefault="qualified" 
-                attributeFormDefault="unqualified"> 
-            -->
         <xsl:choose>
             <xsl:when test="$processedNamespace!=''">
                 <xs:schema version="1.0" targetNamespace="{$processedNamespace}">
@@ -88,7 +78,7 @@
             <xsl:value-of select="generalization/@general"/>
         </xsl:variable>
         <xsl:variable name="tmpname" select="@name"/>
-        
+
         <xs:element>
             <xsl:attribute name="name">
                 <xsl:value-of select="replace(@name, ':', '_')"/>
@@ -110,7 +100,7 @@
                     <xsl:value-of select="//packagedElement[@xmi:id=$paid]/@name"/>
                 </xsl:attribute>
             </xsl:if>-->
-            
+
             <!-- documentation -->
             <xs:annotation>
                 <xs:documentation>
@@ -121,14 +111,15 @@
 
         <xs:complexType>
             <xsl:attribute name="name">
-                <xsl:value-of select="replace(@name, ':', '_')"/>
+                <xsl:value-of select="ddifunc:cleanName(@name)"/>
                 <xsl:text>Type</xsl:text>
             </xsl:attribute>
             <xs:complexContent>
                 <!-- documentation -->
                 <xs:annotation>
                     <xs:documentation>
-                        <xsl:value-of select="//*/element[@name=$tmpname]/properties/@documentation"/>
+                        <xsl:value-of select="//*/element[@name=$tmpname]/properties/@documentation"
+                        />
                     </xs:documentation>
                 </xs:annotation>
                 <xs:extension>
@@ -213,7 +204,8 @@
                     <xsl:choose>
                         <xsl:when test="$xmitype = 'uml:primitivetype'">
                             <xsl:call-template name="defineType">
-                                <xsl:with-param name="xmitype" select="lower-case(tokenize(type/@href,'#')[last()])"/>
+                                <xsl:with-param name="xmitype"
+                                    select="lower-case(tokenize(type/@href,'#')[last()])"/>
                             </xsl:call-template>
                         </xsl:when>
                         <xsl:when test="$xmitype != ''">
@@ -223,7 +215,8 @@
                         </xsl:when>
                         <xsl:otherwise>
                             <xsl:call-template name="defineType">
-                                <xsl:with-param name="xmitype" select="$xmiidref"/>
+                                <xsl:with-param name="xmitype" select="ddifunc:cleanName($xmiidref)">                                    
+                                </xsl:with-param>
                             </xsl:call-template>
                         </xsl:otherwise>
                     </xsl:choose>
@@ -265,12 +258,12 @@
                 <xsl:when test="contains($xmitype,  'char')">
                     <xsl:text>xs:string</xsl:text>
                 </xsl:when>
-                
-                <!-- uml unlimitednatural eq string -->                
+
+                <!-- uml unlimitednatural eq string -->
                 <xsl:when test="contains($xmitype,  'unlimitednatural')">
                     <xsl:text>xs:string</xsl:text>
                 </xsl:when>
-                
+
                 <!-- boolean -->
                 <xsl:when test="contains($xmitype,  'boolean')">
                     <xsl:text>xs:boolean</xsl:text>
