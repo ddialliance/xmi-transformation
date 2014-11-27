@@ -1,7 +1,7 @@
 ﻿<?xml version="1.0" encoding="UTF-8"?>
 <xsl:stylesheet xmlns:xsl="http://www.w3.org/1999/XSL/Transform"
     xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:uml="http://schema.omg.org/spec/UML/2.1"
-    xmlns:xmi="http://schema.omg.org/spec/XMI/2.1" xmlns:ddic="Core" xmlns:ddifunc="ddi:functions"
+    xmlns:xmi="http://schema.omg.org/spec/XMI/2.1" xmlns:ddifunc="ddi:functions"
     xmlns:xhtml="http://www.w3.org/1999/xhtml" exclude-result-prefixes="ddifunc uml xmi"
     version="2.0">
 
@@ -10,105 +10,187 @@
 
     <!-- options -->
     <xsl:output method="xml" indent="yes"/>
-
-    <!-- params -->
-    <xsl:param name="processedNamespace"/>
-
+	
+	<!-- params -->
+	<xsl:param name="filepath" select="'file:///C:/Work/output/'"/>
+	
     <!-- variables -->
     <xsl:variable name="properties" select="document('xsd-properties.xml')"/>
+	<xsl:variable name="stylesheetVersion">2.0.0</xsl:variable>
 
     <xsl:template match="xmi:XMI">
-        <xsl:choose>
-            <xsl:when test="$processedNamespace!=''">
-                <xs:schema version="1.0" targetNamespace="{$processedNamespace}">
-                    <xsl:namespace name="" select="$processedNamespace"/>
-                    <xsl:for-each
-                        select="$properties/SchemaCreationProperties/Namespaces/Namespace[@name=$processedNamespace]/Import">
-                        <xsl:variable name="ns-prefix" select="text()"/>
-                        <xsl:variable name="ns-namespace"
-                            select="$properties/SchemaCreationProperties/Namespaces/Namespace[@prefix=$ns-prefix]/@name"/>
-                        <xsl:namespace name="{$ns-prefix}" select="$ns-namespace"/>
-                    </xsl:for-each>
-                    <xsl:for-each
-                        select="$properties/SchemaCreationProperties/Namespaces/Namespace[@name=$processedNamespace]/Import">
-                        <xsl:variable name="ns-prefix" select="text()"/>
-                        <xs:import>
-                            <xsl:attribute name="namespace">
-                                <xsl:value-of
-                                    select="$properties/SchemaCreationProperties/Namespaces/Namespace[@prefix=$ns-prefix]/@name"
-                                />
-                            </xsl:attribute>
-                            <xsl:attribute name="schemaLocation">
-                                <xsl:value-of
-                                    select="$properties/SchemaCreationProperties/Namespaces/Namespace[@prefix=$ns-prefix]/@location"
-                                />
-                            </xsl:attribute>
-                        </xs:import>
-                    </xsl:for-each>
-                    <!--<xsl:value-of select="$properties/SchemaCreationProperties/Namespaces/Namespace[@name=$processedNamespace]/@prefix"/>-->
-                    <xsl:apply-templates
-                        select="//packagedElement[@xmi:type='uml:Package' and @name=$processedNamespace]"
-                        mode="package"/>
-                    <xsl:call-template name="coreElements"/>
-                </xs:schema>
-            </xsl:when>
-            <xsl:otherwise>
-                <xs:schema version="1.0">
-                    <xsl:apply-templates select="//packagedElement[@xmi:type='uml:Package']"
-                        mode="package"/>
-                    <xsl:call-template name="coreElements"/>
-                </xs:schema>
-            </xsl:otherwise>
-        </xsl:choose>
+		<xs:schema version="1.0" elementFormDefault="qualified" attributeFormDefault="unqualified">
+			<xsl:for-each select="$properties/SchemaCreationProperties/PackageNamespaces/Namespace">
+				<xsl:namespace name="{@prefix}" select="concat('ddi:',lower-case(@name),':4_0')"/>
+			</xsl:for-each>
+			<xsl:comment>
+				<xsl:text>This file was created by xmi2xsd version </xsl:text>
+				<xsl:value-of select="$stylesheetVersion"/>
+			</xsl:comment>
+			<xsl:for-each select="$properties/SchemaCreationProperties/PackageNamespaces/Namespace">
+				<xs:import>
+					<xsl:attribute name="schemaLocation">
+						<xsl:value-of select="@location"/>
+					</xsl:attribute>
+					<xsl:attribute name="namespace">
+						<xsl:value-of select="concat('ddi:',lower-case(@name),':4_0')"/>
+					</xsl:attribute>
+				</xs:import>
+			</xsl:for-each>
+		</xs:schema>
+		<xsl:apply-templates select="//packagedElement[@name='Packages']/packagedElement[@xmi:type='uml:Package']"
+			mode="package"/>
+		<xsl:apply-templates select="//packagedElement[@name='Functional Views']/packagedElement[@xmi:type='uml:Package']"
+			mode="view"/>
     </xsl:template>
 
-    <xsl:template name="coreElements">
-        <xs:complexType name="DDIObjectType">
-            <xs:attribute name="isBaseObject" type="xs:boolean" default="true"/>
-        </xs:complexType>
+    <xsl:template match="packagedElement" mode="view">
+		<xsl:variable name="name" select="@name"/>
+		<xsl:variable name="filename" select="$properties/SchemaCreationProperties/ViewNamespaces/Namespace[@name=$name]/@location"/>
+		<xsl:result-document href="{$filepath}{$filename}">
+			<xsl:variable name="prefix" select="$properties/SchemaCreationProperties/ViewNamespaces/Namespace[@name=$name]/@prefix"/>
+			<xsl:variable name="name" select="replace(@name, ':', '_')"/>
+			<xs:schema version="1.0" elementFormDefault="qualified" attributeFormDefault="unqualified">
+				<xsl:attribute name="targetNamespace">
+					<xsl:text>ddi:</xsl:text>
+					<xsl:value-of select="lower-case($name)"/>
+					<xsl:text>:4_0</xsl:text>
+				</xsl:attribute>
+				<xsl:namespace name="{$prefix}" select="concat('ddi:',lower-case($name),':4_0')"/>
+				<xsl:for-each select="$properties/SchemaCreationProperties/PackageNamespaces/Namespace">
+					<xsl:namespace name="{@prefix}" select="concat('ddi:',lower-case(@name),':4_0')"/>
+				</xsl:for-each>
+
+				<xsl:comment>
+					<xsl:text>This file was created by xmi2xsd version </xsl:text>
+					<xsl:value-of select="$stylesheetVersion"/>
+				</xsl:comment>
+				<xs:include schemaLocation="library.xsd"/>
+				<xs:element>
+				    <xsl:attribute name="type">
+				        <xsl:value-of select="$prefix"/>
+				        <xsl:text>:DDI4</xsl:text>
+				        <xsl:value-of select="@name"/>
+				        <xsl:text>Type</xsl:text>
+				    </xsl:attribute>
+				    <xsl:attribute name="name">
+				        <xsl:text>DDI4</xsl:text>
+				        <xsl:value-of select="replace(@name, ':', '_')"/>
+				    </xsl:attribute>
+				    <!-- documentation -->
+					<xs:annotation>
+						<xs:documentation>
+							<xsl:value-of select="//*/element[@xmi:idref=$name]/properties/@documentation"/>
+						</xs:documentation>
+					</xs:annotation>
+				</xs:element>
+				<xs:complexType>
+				    <xsl:attribute name="name">
+				        <xsl:text>DDI4</xsl:text>
+				        <xsl:value-of select="@name"/>
+				        <xsl:text>Type</xsl:text>
+				    </xsl:attribute>
+				    <xs:complexContent>
+						<!-- documentation -->
+						<xs:annotation>
+							<xs:documentation>
+								<xsl:value-of select="//*/element[@xmi:idref=$name]/properties/@documentation"/>
+							</xs:documentation>
+						</xs:annotation>
+						<xs:extension>
+							<xs:sequence>
+								<xs:choice>
+									<xsl:variable name="viewID" select="@xmi:id"/>
+									<xsl:apply-templates select="//diagram[model/@package=$viewID]" mode="viewRoot"/>
+								</xs:choice>
+							</xs:sequence>
+						</xs:extension>
+					</xs:complexContent>
+				</xs:complexType>
+			</xs:schema>
+		</xsl:result-document>
     </xsl:template>
 
     <xsl:template match="packagedElement" mode="package">
-        <!-- ToDo naming package with the the content of @name -->
-        <xsl:apply-templates select="packagedElement[@xmi:type='uml:Class']" mode="class"/>
+		<xsl:variable name="name" select="@name"/>
+		<xsl:variable name="filename" select="$properties/SchemaCreationProperties/PackageNamespaces/Namespace[@name=$name]/@location"/>
+		<xsl:result-document href="{$filepath}{$filename}">
+			<xsl:variable name="prefix" select="$properties/SchemaCreationProperties/PackageNamespaces/Namespace[@name=$name]/@prefix"/>
+			<xsl:variable name="name" select="replace(@name, ':', '_')"/>
+			<xs:schema version="1.0" elementFormDefault="qualified" attributeFormDefault="unqualified">
+				<xsl:attribute name="targetNamespace">
+					<xsl:text>ddi:</xsl:text>
+					<xsl:value-of select="lower-case($name)"/>
+					<xsl:text>:4_0</xsl:text>
+				</xsl:attribute>
+				<xsl:namespace name="{$prefix}" select="concat('ddi:',lower-case($name),':4_0')"/>
+				<xsl:for-each select="$properties/SchemaCreationProperties/PackageNamespaces/Namespace">
+					<xsl:namespace name="{@prefix}" select="concat('ddi:',lower-case(@name),':4_0')"/>
+				</xsl:for-each>
+				<xsl:comment>
+					<xsl:text>This file was created by xmi2xsd version </xsl:text>
+					<xsl:value-of select="$stylesheetVersion"/>
+				</xsl:comment>
+				<xs:include schemaLocation="library.xsd"/>
+				<xsl:apply-templates select="packagedElement[@xmi:type='uml:Class']" mode="class"/>
+			</xs:schema>
+		</xsl:result-document>
     </xsl:template>
+	
+	<xsl:template match="diagram" mode="viewRoot">
+		<xsl:for-each select="elements/element">
+			<xsl:variable name="oID" select="@subject"/>
+			<xsl:variable name="pName" select="//packagedElement[@xmi:id=$oID]/../@name"/>
+			<xsl:variable name="prefix" select="$properties/SchemaCreationProperties/PackageNamespaces/Namespace[@name=$pName]/@prefix"/>
+			<xs:element>
+				<xsl:attribute name="name">
+					<xsl:value-of select="replace(//packagedElement[@xmi:id=$oID]/@name, ':', '_')"/>
+				</xsl:attribute>
+				<xsl:attribute name="type">
+					<xsl:value-of select="$prefix"/>
+					<xsl:text>:</xsl:text>
+					<xsl:value-of select="ddifunc:cleanName(//packagedElement[@xmi:id=$oID]/@name)"/>
+					<xsl:text>Type</xsl:text>
+				</xsl:attribute>
+			</xs:element>
+		</xsl:for-each>
+	</xsl:template>
 
     <xsl:template match="packagedElement" mode="class">
         <xsl:variable name="paid">
             <xsl:value-of select="generalization/@general"/>
         </xsl:variable>
         <xsl:variable name="tmpname" select="@name"/>
+		<xsl:variable name="mns" select="../@name"/>
 
-        <xs:element>
-            <xsl:attribute name="name">
-                <xsl:value-of select="replace(@name, ':', '_')"/>
-            </xsl:attribute>
-            <xsl:attribute name="type">
-                <xsl:value-of select="@name"/>
-                <xsl:text>Type</xsl:text>
-            </xsl:attribute>
-            <xsl:if test="@isAbstract='true'">
-                <xsl:attribute name="abstract">
-                    <xsl:text>true</xsl:text>
-                </xsl:attribute>
-            </xsl:if>
-            <!-- substitutionGoup should be left out. The sollution is the root element to contain 
-                aggegations for all elements in a given namespace. the overall root element will then 
-                have to contain all namespace root elements and act as a bracket. -->
-            <!--<xsl:if test="generalization">
-                <xsl:attribute name="substitutionGroup">
-                    <xsl:value-of select="//packagedElement[@xmi:id=$paid]/@name"/>
-                </xsl:attribute>
-            </xsl:if>-->
+		<xs:element>
+			<xsl:attribute name="name">
+				<xsl:value-of select="replace(@name, ':', '_')"/>
+			</xsl:attribute>
+			<xsl:attribute name="type">
+				<xsl:value-of
+					select="$properties/SchemaCreationProperties/PackageNamespaces/Namespace[@name=$mns]/@prefix"/>
+				<xsl:text>:</xsl:text>
+				<xsl:value-of select="@name"/>
+				<xsl:text>Type</xsl:text>
+			</xsl:attribute>
+			<xsl:if test="@isAbstract='true'">
+				<xsl:attribute name="abstract">
+					<xsl:text>true</xsl:text>
+				</xsl:attribute>
+			</xsl:if>
 
-            <!-- documentation -->
-            <xs:annotation>
-                <xs:documentation>
-                    <xsl:value-of select="//*/element[@name=$tmpname]/properties/@documentation"/>
-                </xs:documentation>
-            </xs:annotation>
-        </xs:element>
+			<!-- documentation -->
+			<xs:annotation>
+				<xs:documentation>
+					<xsl:value-of select="//*/element[@name=$tmpname]/properties/@documentation"/>
+				</xs:documentation>
+			</xs:annotation>
+		</xs:element>
 
+		<xsl:variable name="gid" select="generalization/@general"/>
+		<xsl:variable name="tns" select="//packagedElement[@xmi:id=$gid]/../@name"/>
+		
         <xs:complexType>
             <xsl:attribute name="name">
                 <xsl:value-of select="ddifunc:cleanName(@name)"/>
@@ -123,37 +205,19 @@
                     </xs:documentation>
                 </xs:annotation>
                 <xs:extension>
-                    <xsl:attribute name="base">
-                        <xsl:choose>
-                            <xsl:when test="generalization">
-                                <xsl:choose>
-                                    <xsl:when
-                                        test="//packagedElement[@xmi:id='EAID_ABB8061C_9872_4a25_9083_71EDD5DAA888']/../@name!=$processedNamespace">
-                                        <xsl:variable name="tns"
-                                            select="//packagedElement[@xmi:id='EAID_ABB8061C_9872_4a25_9083_71EDD5DAA888']/../@name"/>
-                                        <xsl:value-of
-                                            select="$properties/SchemaCreationProperties/Namespaces/Namespace[@name=$tns]/@prefix"/>
-                                        <xsl:text>:</xsl:text>
-                                        <xsl:value-of
-                                            select="//packagedElement[@xmi:id=$paid]/@name"/>
-                                        <xsl:text>test1</xsl:text>
-                                    </xsl:when>
-                                    <xsl:otherwise>
-                                        <xsl:value-of
-                                            select="//packagedElement[@xmi:id=$paid]/@name"/>
-                                    </xsl:otherwise>
-                                </xsl:choose>
-                                <xsl:text>Type</xsl:text>
-                            </xsl:when>
-                            <xsl:otherwise>
-                                <xsl:text>DDIObjectType</xsl:text>
-                            </xsl:otherwise>
-                        </xsl:choose>
-                    </xsl:attribute>
+					<xsl:if test="generalization">
+						<xsl:attribute name="base">
+							<xsl:value-of
+								select="$properties/SchemaCreationProperties/PackageNamespaces/Namespace[@name=$tns]/@prefix"/>
+							<xsl:text>:</xsl:text>
+							<xsl:value-of
+								select="//packagedElement[@xmi:id=$paid]/@name"/>
+							<xsl:text>Type</xsl:text>
+						</xsl:attribute>
+					</xsl:if>
                     <xs:sequence>
                         <xsl:apply-templates select="ownedAttribute[@xmi:type='uml:Property']"/>
                     </xs:sequence>
-                    <!-- xs:anyAttribute/ -->
                 </xs:extension>
             </xs:complexContent>
         </xs:complexType>
