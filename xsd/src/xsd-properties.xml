@@ -1,43 +1,28 @@
-﻿<?xml version="1.0" encoding="UTF-8"?>
-<SchemaCreationProperties version="1.0.0">
-    <Namespaces>
-        <Namespace name="Core" prefix="ddic" location="ddi-core.xsd"/>
-        <Namespace name="Util" prefix="ddiu" location="ddi-util.xsd"/>
-        <Namespace name="Foundational" prefix="ddif" location="ddi-foundation.xsd">
-            <Import>ddic</Import>
-            <Import>ddiu</Import>
-        </Namespace>
-        <Namespace name="SimpleDataDescription" prefix="ddisdd"
-            location="ddi-simpledatadescription.xsd">
-            <Import>ddic</Import>
-            <Import>ddiu</Import>
-            <Import>ddif</Import>
-        </Namespace>
-        <Namespace name="SimpleCodebook" prefix="ddisdd" location="ddi-simplecodebook.xsd">
-            <Import>ddic</Import>
-            <Import>ddiu</Import>
-            <Import>ddif</Import>
-            <Import>ddissd</Import>
-        </Namespace>
-        <Namespace name="SimpleInstrument" prefix="ddisi" location="ddi-simpleinstrument.xsd">
-            <Import>ddic</Import>
-            <Import>ddiu</Import>
-            <Import>ddif</Import>
-            <Import>ddim</Import>
-        </Namespace>
-        <Namespace name="Methodology" prefix="ddim" location="ddi-methodology.xsd">
-            <Import>ddic</Import>
-            <Import>ddiu</Import>
-            <Import>ddif</Import>
-            <Import>ddisi</Import>
-        </Namespace>
-
-        <!-- for testing -->
-        <Namespace name="org.ddialliance.test.PackageExtended" prefix="dditesta"
-            location="PackageExtended.xsd"> </Namespace>
-        <Namespace name="org.ddialliance.test.PackageExtending" prefix="dditestb"
-            location="PackageExtending.xsd">
-            <Import>dditesta</Import>
-        </Namespace>
-    </Namespaces>
+<?xml version="1.0" encoding="UTF-8"?>
+<SchemaCreationProperties version="2.0.0">
+	<PackageNamespaces>
+		<!--Namespace location="DDI-Conceptual.xsd" prefix="conc" name="Conceptual"/>
+		<Namespace location="DDI-Representations.xsd" prefix="repr" name="Representations"/>
+		<Namespace location="DDI-NewObjectsForDiscovery.xsd" prefix="nofd" name="NewObjectsForDiscovery"/>
+		<Namespace location="DDI-DataCapture.xsd" prefix="datc" name="DataCapture"/>
+		<Namespace location="DDI-Methodology.xsd" prefix="meth" name="Methodology"/>
+		<Namespace location="DDI-Primitives.xsd" prefix="prim" name="Primitives"/>
+		<Namespace location="DDI-Discovery.xsd" prefix="disc" name="Discovery"/>
+		<Namespace location="DDI-CollectionManagement.xsd" prefix="colmg" name="CollectionManagement"/>
+		<Namespace location="DDI-SimpleCodebook.xsd" prefix="simpcd" name="SimpleCodebook"/>
+		<Namespace location="DDI-ProcessCore.xsd" prefix="procco" name="ProcessCore"/>
+		<Namespace location="DDI-Collection.xsd" prefix="coll" name="Collection"/>
+		<Namespace location="DDI-ComplexProcess.xsd" prefix="comproc" name="ComplexProcess"/>
+		<Namespace location="DDI-NewObjectsForPhysicalDataDescription.xsd" prefix="nofpdd" name="NewObjectsForPhysicalDataDescription"/>
+		<Namespace location="DDI-Comparison.xsd" prefix="comp" name="Comparison"/>
+		<Namespace location="DDI-Correspondences.xsd" prefix="corr" name="Correspondences"/>
+		<Namespace location="DDI-HistoricalProcess.xsd" prefix="histproc" name="HistoricalProcess"/>
+		<Namespace location="DDI-PrescriptiveProcess.xsd" prefix="preproc" name="PrescriptiveProcess"/-->
+		<Namespace location="DDI-Identification.xsd"  prefix="id" name="Identification"/>
+		<Namespace location="DDI-Agents.xsd" prefix="agen" name="Agents"/>
+		<Namespace location="DDI-ComplexDataTypes.xsd" prefix="comdt" name="ComplexDataTypes"/>
+	</PackageNamespaces>
+	<ViewNamespaces>
+		<Namespace location="DDI-AgentView.xsd"  prefix="agenV" name="AgentView"/>
+	</ViewNamespaces>
 </SchemaCreationProperties>
