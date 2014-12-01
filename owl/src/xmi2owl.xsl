@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <xsl:stylesheet xmlns:xsl="http://www.w3.org/1999/XSL/Transform"
-    xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:uml="http://schema.omg.org/spec/UML/2.1"
-    xmlns:xmi="http://schema.omg.org/spec/XMI/2.1" xmlns:ddifunc="ddi:functions"
+    xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:uml="http://www.omg.org/spec/UML/20110701"
+    xmlns:xmi="http://www.omg.org/spec/XMI/20110701" xmlns:ddifunc="ddi:functions"
     exclude-result-prefixes="xs" version="2.0">
 
     <!-- imports -->
