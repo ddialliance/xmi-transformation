@@ -16,7 +16,7 @@
 	
     <!-- variables -->
     <xsl:variable name="properties" select="document('xsd-properties.xml')"/>
-	<xsl:variable name="stylesheetVersion">2.0.0</xsl:variable>
+	<xsl:variable name="stylesheetVersion">2.0.1</xsl:variable>
 
     <xsl:template match="xmi:XMI">
         <xs:schema version="1.0" elementFormDefault="qualified" attributeFormDefault="unqualified" targetNamespace="ddi:library:4_0">
@@ -397,7 +397,7 @@
 				<xsl:value-of select="@name"/>
 				<xsl:text>Type</xsl:text>
 			</xsl:attribute>
-			<xsl:if test="@isAbstract='true'">
+			<xsl:if test="@isAbstract='1'">
 				<xsl:attribute name="abstract">
 					<xsl:text>true</xsl:text>
 				</xsl:attribute>
