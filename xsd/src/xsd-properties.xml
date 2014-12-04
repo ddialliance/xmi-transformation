@@ -1,24 +1,35 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <SchemaCreationProperties version="1.0.0">
-<Namespaces>
-<Namespace location="DDI-Conceptual.xsd" prefix="conc" name="Conceptual"/>
-<Namespace location="DDI-Representations.xsd" prefix="repr" name="Representations"/>
-<Namespace location="DDI-DataCapture.xsd" prefix="datc" name="DataCapture"/>
-<Namespace location="DDI-Methodology.xsd" prefix="meth" name="Methodology"/>
-<Namespace location="DDI-Primitives.xsd" prefix="prim" name="Primitives"/>
-<Namespace location="DDI-Discovery.xsd" prefix="disc" name="Discovery"/>
-<Namespace location="DDI-Agents.xsd" prefix="agen" name="Agents"/>
-<Namespace location="DDI-CollectionManagement.xsd" prefix="colmg" name="CollectionManagement"/>
-<Namespace location="DDI-ComplexDataTypes.xsd" prefix="comdt" name="ComplexDataTypes"/>
-<Namespace location="DDI-SimpleCodebook.xsd" prefix="simpcd" name="SimpleCodebook"/>
-<Namespace location="DDI-ProcessCore.xsd" prefix="procco" name="ProcessCore"/>
-<Namespace location="DDI-Processing.xsd" prefix="procs" name="Processing"/>
-<Namespace location="DDI-Utility.xsd" prefix="util" name="Utility"/>
-<Namespace location="DDI-Collection.xsd" prefix="coll" name="Collection"/>
-<Namespace location="DDI-ComplexProcess.xsd" prefix="comproc" name="ComplexProcess"/>
-<Namespace location="DDI-HistoricalProcess.xsd" prefix="histproc" name="HistoricalProcess"/>
-<Namespace location="DDI-PrescriptiveProcess.xsd" prefix="preproc" name="PrescriptiveProcess"/>
-<Namespace location="DDI-Identification.xsd"  prefix="id" name="Identification"/>
-<Namespace location="DDI-AgentsView.xsd"  prefix="agvw" name="AgentsView"/>
-</Namespaces>
+    <PackageNamespaces>
+        <Namespace location="DDI-Conceptual.xsd" prefix="conc" name="Conceptual"/>
+        <Namespace location="DDI-Representations.xsd" prefix="repr" name="Representations"/>
+        <Namespace location="DDI-DataCapture.xsd" prefix="datc" name="DataCapture"/>
+        <Namespace location="DDI-Methodology.xsd" prefix="meth" name="Methodology"/>
+        <Namespace location="DDI-Primitives.xsd" prefix="prim" name="Primitives"/>
+        <Namespace location="DDI-Discovery.xsd" prefix="disc" name="Discovery"/>
+        <Namespace location="DDI-NewObjectsForDiscovery.xsd" prefix="nodisc" name="NewObjectsForDiscovery"/>
+        <Namespace location="DDI-Agents.xsd" prefix="agen" name="Agents"/>
+        <Namespace location="DDI-CollectionManagement.xsd" prefix="colmg" name="CollectionManagement"/>
+        <Namespace location="DDI-ComplexDataTypes.xsd" prefix="comdt" name="ComplexDataTypes"/>
+        <Namespace location="DDI-SimpleCodebook.xsd" prefix="simpcd" name="SimpleCodebook"/>
+        <Namespace location="DDI-CoreProcess.xsd" prefix="procco" name="CoreProcess"/>
+        <Namespace location="DDI-Processing.xsd" prefix="procs" name="Processing"/>
+        <Namespace location="DDI-Utility.xsd" prefix="util" name="Utility"/>
+        <Namespace location="DDI-Collections.xsd" prefix="coll" name="Collections"/>
+        <Namespace location="DDI-ComplexProcess.xsd" prefix="comproc" name="ComplexProcess"/>
+        <Namespace location="DDI-HistoricalProcess.xsd" prefix="histproc" name="HistoricalProcess"/>
+        <Namespace location="DDI-PrescriptiveProcess.xsd" prefix="preproc" name="PrescriptiveProcess"/>
+        <Namespace location="DDI-Identification.xsd"  prefix="id" name="Identification"/>
+        <Namespace location="DDI-PrescriptiveProcess.xsd"  prefix="prepro" name="PrescriptiveProcess"/>
+        <Namespace location="DDI-PhysicalDataDescription.xsd"  prefix="phdd" name="NewobjectsforPhysicalDataDescription"/>
+    </PackageNamespaces>
+    <ViewNamespaces>
+        <Namespace location="DDI-AgentsView.xsd"  prefix="agvw" name="AgentsView"/>
+        <Namespace location="DDI-ClassificationView.xsd"  prefix="clvw" name="ClassificationView"/>
+        <Namespace location="DDI-DiscoveryView.xsd"  prefix="discvw" name="DiscoveryView"/>
+        <Namespace location="DDI-LogicalDataDescriptionView.xsd"  prefix="lddvw" name="LogicalDataDescriptionView"/>
+        <Namespace location="DDI-PhysicalDataDescriptionView.xsd"  prefix="phddvw" name="PhysicalDataDescriptionView"/>
+        <Namespace location="DDI-SimpleCodebookView.xsd"  prefix="scvw" name="SimpleCodebookView"/>
+        <Namespace location="DDI-SimpleInstrumentView.xsd"  prefix="scvw" name="SimpleInstrumentView"/>
+    </ViewNamespaces>
 </SchemaCreationProperties>

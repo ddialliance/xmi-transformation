@@ -41,11 +41,11 @@
             <xs:import namespace="http://www.w3.org/XML/1998/namespace" schemaLocation="xml.xsd"/>
             <xs:import namespace="http://www.w3.org/1999/xhtml" schemaLocation="ddi-xhtml11.xsd"/>
 		</xs:schema>
-        <xsl:apply-templates select="//packagedElement[@name='Packages']/packagedElement[@xmi:type='uml:Package' and @name='ComplexDataTypes']"
+        <xsl:apply-templates select="//packagedElement[@xmi:id='ddi4_model']/packagedElement[@xmi:type='uml:Package' and @name='ComplexDataTypes']"
             mode="datatypes"/>
-        <xsl:apply-templates select="//packagedElement[@name='Packages']/packagedElement[@xmi:type='uml:Package' and @name!='ComplexDataTypes']"
+        <xsl:apply-templates select="//packagedElement[@xmi:id='ddi4_model']/packagedElement[@xmi:type='uml:Package' and @name!='ComplexDataTypes']"
             mode="package"/>
-        <xsl:apply-templates select="//packagedElement[@name='Functional Views']/packagedElement[@xmi:type='uml:Package']"
+        <xsl:apply-templates select="//packagedElement[@xmi:id='ddi4_views']/packagedElement[@xmi:type='uml:Package']"
 			mode="view"/>
     </xsl:template>
 
@@ -211,8 +211,11 @@
                 <xsl:apply-templates select="packagedElement[@xmi:type='uml:DataType']" mode="dataType"/>
                 <xsl:apply-templates select="packagedElement[@xmi:type='uml:Enumeration']" mode="enumeration"/>
                 <xsl:for-each select="packagedElement[@xmi:type='uml:Class']">
+                    <xsl:variable name="isSimple">
+                        <xsl:apply-templates select="." mode="isSimple"/>
+                    </xsl:variable>
                     <xsl:choose>
-                        <xsl:when test="ownedAttribute[(@name='content' and type/@xmi:type='uml:PrimitiveType') or type/@xmi:idref='xhtml:BlkNoForm.mix']">
+                        <xsl:when test="$isSimple='true'">
                             <xsl:apply-templates select="." mode="simple"/>
                         </xsl:when>
                         <xsl:otherwise>
@@ -297,6 +300,18 @@
         </xs:simpleType>
     </xsl:template>
     
+    <xsl:template match="packagedElement" mode="isSimple">
+        <xsl:choose>
+            <xsl:when test="ownedAttribute[(@name='content' and type/@xmi:type='uml:PrimitiveType') or type/@xmi:idref='xhtml:BlkNoForm.mix']">
+                <xsl:text>true</xsl:text>
+            </xsl:when>
+            <xsl:when test="generalization/@general">
+                <xsl:variable name="pid" select="generalization/@general"/>
+                <xsl:apply-templates select="//packagedElement[@xmi:id=$pid]" mode="isSimple"/>
+            </xsl:when>
+        </xsl:choose>
+    </xsl:template>
+    
     <xsl:template match="packagedElement" mode="dataType">
         <xs:simpleType>
             <xsl:attribute name="name">
@@ -320,7 +335,7 @@
     
     <xsl:template match="packagedElement" mode="simple">
         <xsl:choose>
-            <xsl:when test="count(ownedAttribute[@xmi:type='uml:Property'])=1">
+            <xsl:when test="count(ownedAttribute[@xmi:type='uml:Property'])=1 and ownedAttribute[@name='content']">
                 <xs:simpleType>
                     <xsl:attribute name="name">
                         <xsl:value-of select="@name"/>
@@ -368,9 +383,20 @@
                             <xs:simpleContent>
                                 <xs:extension base="xs:string">
                                     <xsl:attribute name="base">
-                                        <xsl:call-template name="defineType">
-                                            <xsl:with-param name="xmitype" select="lower-case(tokenize(ownedAttribute[@name='content']/type/@href,'#')[last()])"/>
-                                        </xsl:call-template>
+                                        <xsl:choose>
+                                            <xsl:when test="ownedAttribute[@name='content']">
+                                                <xsl:call-template name="defineType">
+                                                    <xsl:with-param name="xmitype" select="lower-case(tokenize(ownedAttribute[@name='content']/type/@href,'#')[last()])"/>
+                                                </xsl:call-template>
+                                            </xsl:when>
+                                            <xsl:when test="generalization/@general">
+                                                <xsl:value-of select="generalization/@general"/>
+                                                <xsl:text>Type</xsl:text>
+                                            </xsl:when>
+                                            <xsl:otherwise>
+                                                ERROR
+                                            </xsl:otherwise>
+                                        </xsl:choose>
                                     </xsl:attribute>
                                     <xsl:apply-templates select="ownedAttribute[@name!='content']" mode="attribute"/>
                                 </xs:extension>
