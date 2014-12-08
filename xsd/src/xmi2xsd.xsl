@@ -52,7 +52,7 @@
     <xsl:template match="packagedElement" mode="view">
 		<xsl:variable name="name" select="@name"/>
 		<xsl:variable name="filename" select="$properties/SchemaCreationProperties/ViewNamespaces/Namespace[@name=$name]/@location"/>
-		<xsl:result-document href="{$filepath}{$filename}">
+		<xsl:result-document href="{$filepath}/{$filename}">
 			<xsl:variable name="prefix" select="$properties/SchemaCreationProperties/ViewNamespaces/Namespace[@name=$name]/@prefix"/>
 			<xsl:variable name="name" select="replace(@name, ':', '_')"/>
 			<xs:schema version="1.0" elementFormDefault="qualified" attributeFormDefault="unqualified">
@@ -124,7 +124,7 @@
     <xsl:template match="packagedElement" mode="package">
         <xsl:variable name="name" select="@name"/>
         <xsl:variable name="filename" select="$properties/SchemaCreationProperties/PackageNamespaces/Namespace[@name=$name]/@location"/>
-        <xsl:result-document href="{$filepath}{$filename}">
+        <xsl:result-document href="{$filepath}/{$filename}">
             <xsl:variable name="prefix" select="$properties/SchemaCreationProperties/PackageNamespaces/Namespace[@name=$name]/@prefix"/>
             <xsl:variable name="name" select="replace(@name, ':', '_')"/>
             <xs:schema version="1.0" elementFormDefault="qualified" attributeFormDefault="unqualified">
@@ -170,7 +170,7 @@
     <xsl:template match="packagedElement" mode="datatypes">
         <xsl:variable name="name" select="@name"/>
         <xsl:variable name="filename" select="$properties/SchemaCreationProperties/PackageNamespaces/Namespace[@name=$name]/@location"/>
-        <xsl:result-document href="{$filepath}{$filename}">
+        <xsl:result-document href="{$filepath}/{$filename}">
             <xsl:variable name="prefix" select="$properties/SchemaCreationProperties/PackageNamespaces/Namespace[@name=$name]/@prefix"/>
             <xsl:variable name="name" select="replace(@name, ':', '_')"/>
             <xs:schema version="1.0" elementFormDefault="qualified" attributeFormDefault="unqualified">
