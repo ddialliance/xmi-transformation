@@ -20,7 +20,6 @@
         <Namespace location="DDI-HistoricalProcess.xsd" prefix="histproc" name="HistoricalProcess"/>
         <Namespace location="DDI-PrescriptiveProcess.xsd" prefix="preproc" name="PrescriptiveProcess"/>
         <Namespace location="DDI-Identification.xsd"  prefix="id" name="Identification"/>
-        <Namespace location="DDI-PrescriptiveProcess.xsd"  prefix="prepro" name="PrescriptiveProcess"/>
         <Namespace location="DDI-PhysicalDataDescription.xsd"  prefix="phdd" name="NewobjectsforPhysicalDataDescription"/>
     </PackageNamespaces>
     <ViewNamespaces>

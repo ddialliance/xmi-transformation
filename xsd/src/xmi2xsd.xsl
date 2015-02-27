@@ -19,34 +19,19 @@
 	<xsl:variable name="stylesheetVersion">2.0.1</xsl:variable>
 
     <xsl:template match="xmi:XMI">
-        <xs:schema version="1.0" elementFormDefault="qualified" attributeFormDefault="unqualified" targetNamespace="ddi:library:4_0">
-			<xsl:for-each select="$properties/SchemaCreationProperties/PackageNamespaces/Namespace">
-				<xsl:namespace name="{@prefix}" select="concat('ddi:',lower-case(@name),':4_0')"/>
-			</xsl:for-each>
-			<xsl:comment>
+        <protocol>
+            <xsl:comment>
 				<xsl:text>This file was created by xmi2xsd version </xsl:text>
 				<xsl:value-of select="$stylesheetVersion"/>
 			</xsl:comment>
-			<xsl:for-each select="$properties/SchemaCreationProperties/PackageNamespaces/Namespace">
-				<xs:import>
-					<xsl:attribute name="schemaLocation">
-						<xsl:value-of select="@location"/>
-					</xsl:attribute>
-					<xsl:attribute name="namespace">
-						<xsl:value-of select="concat('ddi:',lower-case(@name),':4_0')"/>
-					</xsl:attribute>
-				</xs:import>
-			</xsl:for-each>
             
-            <xs:import namespace="http://www.w3.org/XML/1998/namespace" schemaLocation="xml.xsd"/>
-            <xs:import namespace="http://www.w3.org/1999/xhtml" schemaLocation="ddi-xhtml11.xsd"/>
-		</xs:schema>
         <xsl:apply-templates select="//packagedElement[@xmi:id='ddi4_model']/packagedElement[@xmi:type='uml:Package' and @name='ComplexDataTypes']"
             mode="datatypes"/>
         <xsl:apply-templates select="//packagedElement[@xmi:id='ddi4_model']/packagedElement[@xmi:type='uml:Package' and @name!='ComplexDataTypes']"
             mode="package"/>
         <xsl:apply-templates select="//packagedElement[@xmi:id='ddi4_views']/packagedElement[@xmi:type='uml:Package']"
 			mode="view"/>
+        </protocol>
     </xsl:template>
 
     <xsl:template match="packagedElement" mode="view">
@@ -124,47 +109,57 @@
     <xsl:template match="packagedElement" mode="package">
         <xsl:variable name="name" select="@name"/>
         <xsl:variable name="filename" select="$properties/SchemaCreationProperties/PackageNamespaces/Namespace[@name=$name]/@location"/>
-        <xsl:result-document href="{$filepath}/{$filename}">
-            <xsl:variable name="prefix" select="$properties/SchemaCreationProperties/PackageNamespaces/Namespace[@name=$name]/@prefix"/>
-            <xsl:variable name="name" select="replace(@name, ':', '_')"/>
-            <xs:schema version="1.0" elementFormDefault="qualified" attributeFormDefault="unqualified">
-                <xsl:attribute name="targetNamespace">
-                    <xsl:text>ddi:</xsl:text>
-                    <xsl:value-of select="lower-case($name)"/>
-                    <xsl:text>:4_0</xsl:text>
-                </xsl:attribute>
-                <xsl:for-each select="$properties/SchemaCreationProperties/PackageNamespaces/Namespace">
-                    <xsl:choose>
-                        <xsl:when test="@prefix=$prefix">
-                            <xsl:namespace name="" select="concat('ddi:',lower-case(@name),':4_0')"/>
-                        </xsl:when>
-                        <xsl:otherwise>
-                            <xsl:namespace name="{@prefix}" select="concat('ddi:',lower-case(@name),':4_0')"/>
-                        </xsl:otherwise>
-                    </xsl:choose>
-                </xsl:for-each>
-                <xsl:comment>
+        <xsl:choose>
+            <xsl:when test="$filename=''">
+                <Error>
+                    <xsl:text>No properties found in xsd-properties.xml for: </xsl:text>
+                    <xsl:value-of select="$name"/>
+                </Error>
+            </xsl:when>
+            <xsl:otherwise>
+                <xsl:result-document href="{$filepath}/{$filename}">
+                    <xsl:variable name="prefix" select="$properties/SchemaCreationProperties/PackageNamespaces/Namespace[@name=$name]/@prefix"/>
+                    <xsl:variable name="name" select="replace(@name, ':', '_')"/>
+                    <xs:schema version="1.0" elementFormDefault="qualified" attributeFormDefault="unqualified">
+                        <xsl:attribute name="targetNamespace">
+                            <xsl:text>ddi:</xsl:text>
+                            <xsl:value-of select="lower-case($name)"/>
+                            <xsl:text>:4_0</xsl:text>
+                        </xsl:attribute>
+                        <xsl:for-each select="$properties/SchemaCreationProperties/PackageNamespaces/Namespace">
+                            <xsl:choose>
+                                <xsl:when test="@prefix=$prefix">
+                                    <xsl:namespace name="" select="concat('ddi:',lower-case(@name),':4_0')"/>
+                                </xsl:when>
+                                <xsl:otherwise>
+                                    <xsl:namespace name="{@prefix}" select="concat('ddi:',lower-case(@name),':4_0')"/>
+                                </xsl:otherwise>
+                            </xsl:choose>
+                        </xsl:for-each>
+                        <xsl:comment>
 					<xsl:text>This file was created by xmi2xsd version </xsl:text>
 					<xsl:value-of select="$stylesheetVersion"/>
 				</xsl:comment>
-                <xsl:for-each select="$properties/SchemaCreationProperties/PackageNamespaces/Namespace">
-                    <xsl:if test="@prefix!= $prefix">
-                        <xs:import>
-                            <xsl:attribute name="schemaLocation">
-                                <xsl:value-of select="@location"/>
-                            </xsl:attribute>
-                            <xsl:attribute name="namespace">
-                                <xsl:value-of select="concat('ddi:',lower-case(@name),':4_0')"/>
-                            </xsl:attribute>
-                        </xs:import>
-                    </xsl:if>
-                </xsl:for-each>
-                
-                <xs:import namespace="http://www.w3.org/XML/1998/namespace" schemaLocation="xml.xsd"/>
-                <xs:import namespace="http://www.w3.org/1999/xhtml" schemaLocation="ddi-xhtml11.xsd"/>
-                <xsl:apply-templates select="packagedElement[@xmi:type='uml:Class']" mode="class"/>
-            </xs:schema>
-        </xsl:result-document>
+                        <xsl:for-each select="$properties/SchemaCreationProperties/PackageNamespaces/Namespace">
+                            <xsl:if test="@prefix!= $prefix">
+                                <xs:import>
+                                    <xsl:attribute name="schemaLocation">
+                                        <xsl:value-of select="@location"/>
+                                    </xsl:attribute>
+                                    <xsl:attribute name="namespace">
+                                        <xsl:value-of select="concat('ddi:',lower-case(@name),':4_0')"/>
+                                    </xsl:attribute>
+                                </xs:import>
+                            </xsl:if>
+                        </xsl:for-each>
+                        
+                        <xs:import namespace="http://www.w3.org/XML/1998/namespace" schemaLocation="xml.xsd"/>
+                        <xs:import namespace="http://www.w3.org/1999/xhtml" schemaLocation="ddi-xhtml11.xsd"/>
+                        <xsl:apply-templates select="packagedElement[@xmi:type='uml:Class']" mode="class"/>
+                    </xs:schema>
+                </xsl:result-document>
+            </xsl:otherwise>
+        </xsl:choose>
     </xsl:template>
     
     <xsl:template match="packagedElement" mode="datatypes">
@@ -470,9 +465,9 @@
                                 <xsl:text>Type</xsl:text>
                             </xsl:attribute>
                             <xs:sequence>
-                                <xsl:apply-templates select="ownedAttribute[@xmi:type='uml:Property' and not(ends-with(type/@href,'anguage'))]"/>
+                                <xsl:apply-templates select="ownedAttribute[@xmi:type='uml:Property' and not(ends-with(type/@href,'anguage') or ends-with(type/@xmi:type,'anguage') or ends-with(@xmi:type,'anguage'))]"/>
                             </xs:sequence>
-                            <xsl:apply-templates select="ownedAttribute[@xmi:type='uml:Property' and ends-with(type/@href,'anguage')]" mode="attribute"/>
+                            <xsl:apply-templates select="ownedAttribute[@xmi:type='uml:Property' and (ends-with(type/@href,'anguage') or ends-with(type/@xmi:type,'anguage') or ends-with(@xmi:type,'anguage'))]" mode="attribute"/>
                         </xs:extension>
                     </xs:complexContent>
                 </xsl:when>
@@ -485,9 +480,9 @@
                         </xs:documentation>
                     </xs:annotation>
                     <xs:sequence>
-                        <xsl:apply-templates select="ownedAttribute[@xmi:type='uml:Property' and not(ends-with(type/@href,'anguage'))]"/>
+                        <xsl:apply-templates select="ownedAttribute[@xmi:type='uml:Property' and not(ends-with(type/@href,'anguage') or ends-with(type/@xmi:type,'anguage') or ends-with(@xmi:type,'anguage'))]"/>
                     </xs:sequence>
-                    <xsl:apply-templates select="ownedAttribute[@xmi:type='uml:Property' and ends-with(type/@href,'anguage')]" mode="attribute"/>
+                    <xsl:apply-templates select="ownedAttribute[@xmi:type='uml:Property' and (ends-with(type/@href,'anguage') or ends-with(type/@xmi:type,'anguage') or ends-with(@xmi:type,'anguage'))]" mode="attribute"/>
                 </xsl:otherwise>
             </xsl:choose>
         </xs:complexType>
@@ -496,13 +491,13 @@
     <xsl:template match="ownedAttribute" mode="attribute">
         <xs:attribute>
                 <xsl:choose>
-                    <xsl:when test="@name='xmlLang'">
+                    <xsl:when test="lower-case(@name)='xmllang'">
                         <xsl:attribute name="ref">
                             <xsl:text>xml:lang</xsl:text>
                         </xsl:attribute>
                         <xsl:attribute name="use"><xsl:text>required</xsl:text></xsl:attribute>
                     </xsl:when>
-                    <xsl:when test="ends-with(type/@href,'anguage')">
+                    <xsl:when test="ends-with(type/@href,'anguage') or ends-with(type/@xmi:type,'anguage') or ends-with(@xmi:type,'anguage')">
                         <xsl:attribute name="name">
                             <xsl:value-of select="@name"/>
                         </xsl:attribute>
@@ -543,7 +538,7 @@
                         </xsl:attribute>
                         <xsl:attribute name="use">
                             <xsl:choose>
-                                <xsl:when test="lowerValue/@value='1'"><xsl:text>required</xsl:text></xsl:when>
+                                <xsl:when test="lowerValue[1]/@value='1'"><xsl:text>required</xsl:text></xsl:when>
                                 <xsl:otherwise><xsl:text>optional</xsl:text></xsl:otherwise>
                             </xsl:choose>
                         </xsl:attribute>
@@ -572,25 +567,25 @@
                             <xsl:value-of select="ddifunc:to-upper-cc(@name)"/>
                         </xsl:attribute>
                         <xsl:choose>
-                            <xsl:when test="lowerValue/@value!=''">
+                            <xsl:when test="lowerValue[1]/@value!=''">
                                 <xsl:attribute name="minOccurs">
-                                    <xsl:value-of select="lowerValue/@value"/>
+                                    <xsl:value-of select="lowerValue[1]/@value"/>
                                 </xsl:attribute>
                             </xsl:when>
                             <xsl:otherwise>
                                 <xsl:attribute name="minOccurs">0</xsl:attribute>
                             </xsl:otherwise>
                         </xsl:choose>
-                        <xsl:if test="ownedEnd/upperValue/@value!=''">
+                        <xsl:if test="ownedEnd/upperValue[1]/@value!=''">
                             <xsl:choose>
-                                <xsl:when test="ownedEnd/upperValue/@value='-1'">
+                                <xsl:when test="ownedEnd/upperValue[1]/@value='-1'">
                                     <xsl:attribute name="maxOccurs">
                                         <xsl:text>unbounded</xsl:text>
                                     </xsl:attribute>
                                 </xsl:when>
                                 <xsl:otherwise>
                                     <xsl:attribute name="maxOccurs">
-                                        <xsl:value-of select="ownedEnd/upperValue/@value"/>
+                                        <xsl:value-of select="ownedEnd/upperValue[1]/@value"/>
                                     </xsl:attribute>
                                 </xsl:otherwise>
                             </xsl:choose>
@@ -632,25 +627,25 @@
 
                     <!-- define min - max -->
                     <xsl:choose>
-                        <xsl:when test="lowerValue/@value!=''">
+                        <xsl:when test="lowerValue[1]/@value!=''">
                             <xsl:attribute name="minOccurs">
-                                <xsl:value-of select="lowerValue/@value"/>
+                                <xsl:value-of select="lowerValue[1]/@value"/>
                             </xsl:attribute>
                         </xsl:when>
                         <xsl:otherwise>
                             <xsl:attribute name="minOccurs">0</xsl:attribute>
                         </xsl:otherwise>
                     </xsl:choose>
-                    <xsl:if test="upperValue/@value!=''">
+                    <xsl:if test="upperValue[1]/@value!=''">
                         <xsl:choose>
-                            <xsl:when test="upperValue/@value='-1'">
+                            <xsl:when test="upperValue[1]/@value='-1'">
                                 <xsl:attribute name="maxOccurs">
                                     <xsl:text>unbounded</xsl:text>
                                 </xsl:attribute>
                             </xsl:when>
                             <xsl:otherwise>
                                 <xsl:attribute name="maxOccurs">
-                                    <xsl:value-of select="upperValue/@value"/>
+                                    <xsl:value-of select="upperValue[1]/@value"/>
                                 </xsl:attribute>
                             </xsl:otherwise>
                         </xsl:choose>
