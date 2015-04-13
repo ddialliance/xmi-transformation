@@ -16,7 +16,7 @@
 	
     <!-- variables -->
     <xsl:variable name="properties" select="document('xsd-properties.xml')"/>
-	<xsl:variable name="stylesheetVersion">2.0.1</xsl:variable>
+	<xsl:variable name="stylesheetVersion">2.1.0</xsl:variable>
 
     <xsl:template match="xmi:XMI">
         <protocol>
@@ -409,7 +409,13 @@
         </xsl:variable>
         <xsl:variable name="tmpname" select="@name"/>
 		<xsl:variable name="mns" select="../@name"/>
-
+        <xsl:variable name="overriddenProperties">
+            <xsl:call-template name="determineOverride">
+                <xsl:with-param name="source" select="."/>
+                <xsl:with-param name="ancestor" select="//packagedElement[@xmi:id=$paid]"/>
+            </xsl:call-template>
+        </xsl:variable>
+        
 		<xs:element>
 			<xsl:attribute name="name">
 				<xsl:value-of select="replace(@name, ':', '_')"/>
@@ -418,7 +424,7 @@
 				<xsl:value-of select="@name"/>
 				<xsl:text>Type</xsl:text>
 			</xsl:attribute>
-			<xsl:if test="@isAbstract='1'">
+			<xsl:if test="@isAbstract='true'">
 				<xsl:attribute name="abstract">
 					<xsl:text>true</xsl:text>
 				</xsl:attribute>
@@ -435,6 +441,47 @@
 		<xsl:variable name="gid" select="generalization/@general"/>
 		<xsl:variable name="tns" select="//packagedElement[@xmi:id=$gid]/../@name"/>
 		
+        <xsl:if test="$overriddenProperties!=''">
+            <xsl:comment>
+                <xsl:text>overrides properties: </xsl:text>
+                <xsl:value-of select="$overriddenProperties"></xsl:value-of>
+            </xsl:comment>
+            <xs:complexType>
+                <xsl:attribute name="name">
+                    <xsl:value-of select="ddifunc:cleanName(@name)"/>
+                    <xsl:text>RestrictionType</xsl:text>
+                </xsl:attribute>
+                <xs:complexContent>
+                    <xs:annotation>
+                        <xs:documentation>
+                            <xsl:text>overridden properties: </xsl:text>
+                            <xsl:value-of select="$overriddenProperties"></xsl:value-of>
+                        </xs:documentation>
+                    </xs:annotation>
+                    <xs:restriction>
+                        <xsl:attribute name="base">
+                            <xsl:if test="$tns!=$mns">
+                                <xsl:value-of
+                                    select="$properties/SchemaCreationProperties/PackageNamespaces/Namespace[@name=$tns]/@prefix"/>
+                                <xsl:text>:</xsl:text>
+                            </xsl:if>
+                            <xsl:value-of
+                                select="//packagedElement[@xmi:id=$paid]/@name"/>
+                            <xsl:if test="generalization/@general='Reference'">
+                                <xsl:text>Reference</xsl:text>
+                            </xsl:if>
+                            <xsl:text>Type</xsl:text>
+                        </xsl:attribute>
+                        <xs:sequence>
+                            <xsl:apply-templates select="//packagedElement[@xmi:id=$paid]" mode="fillUpWhatsLeft">
+                                <xsl:with-param name="leftOut" select="$overriddenProperties"/>
+                            </xsl:apply-templates>
+                        </xs:sequence>
+                    </xs:restriction>
+                </xs:complexContent>
+            </xs:complexType>
+        </xsl:if>
+        
         <xs:complexType>
             <xsl:attribute name="name">
                 <xsl:value-of select="ddifunc:cleanName(@name)"/>
@@ -452,16 +499,24 @@
                         </xs:annotation>
                         <xs:extension>
                             <xsl:attribute name="base">
-                                <xsl:if test="$tns!=$mns">
-                                    <xsl:value-of
-                                        select="$properties/SchemaCreationProperties/PackageNamespaces/Namespace[@name=$tns]/@prefix"/>
-                                    <xsl:text>:</xsl:text>
-                                </xsl:if>
-                                <xsl:value-of
-                                    select="//packagedElement[@xmi:id=$paid]/@name"/>
-                                <xsl:if test="generalization/@general='Reference'">
-                                    <xsl:text>Reference</xsl:text>
-                                </xsl:if>
+                                <xsl:choose>
+                                    <xsl:when test="$overriddenProperties!=''">
+                                        <xsl:value-of select="ddifunc:cleanName(@name)"/>
+                                        <xsl:text>Restriction</xsl:text>
+                                    </xsl:when>
+                                    <xsl:otherwise>
+                                        <xsl:if test="$tns!=$mns">
+                                            <xsl:value-of
+                                                select="$properties/SchemaCreationProperties/PackageNamespaces/Namespace[@name=$tns]/@prefix"/>
+                                            <xsl:text>:</xsl:text>
+                                        </xsl:if>
+                                        <xsl:value-of
+                                            select="//packagedElement[@xmi:id=$paid]/@name"/>
+                                        <xsl:if test="generalization/@general='Reference'">
+                                            <xsl:text>Reference</xsl:text>
+                                        </xsl:if>
+                                    </xsl:otherwise>
+                                </xsl:choose>
                                 <xsl:text>Type</xsl:text>
                             </xsl:attribute>
                             <xs:sequence>
@@ -550,22 +605,96 @@
     </xsl:template>
         
     <xsl:template match="ownedAttribute">
+        <xsl:param name="leftOut"/>
         <xsl:choose>
             <!-- aggregation / association -->
             <xsl:when test="@aggregation or @association">
                 <xsl:variable name="paid" select="@association"/>
-                <xs:element>
-                    <xsl:attribute name="type">
-                        <xsl:if test="../../@name!='ComplexDataTypes'">
-                            <xsl:value-of select="$properties/SchemaCreationProperties/PackageNamespaces/Namespace[@name='ComplexDataTypes']/@prefix"/>
-                            <xsl:text>:</xsl:text>
-                        </xsl:if>
-                        <xsl:text>ReferenceType</xsl:text>
-                    </xsl:attribute>
-                    <xsl:for-each select="//packagedElement[@xmi:id=$paid and @xmi:type='uml:Association']">
+                <xsl:variable name="nameCheck">
+                    <xsl:text>;_</xsl:text>
+                    <xsl:value-of select="substring-before(substring-after(@association, '_'), '_')"/>
+                    <xsl:text>_;</xsl:text>
+                </xsl:variable>
+                <xsl:if test="not(contains($leftOut, $nameCheck))">
+                    <xs:element>
+                        <xsl:attribute name="type">
+                            <xsl:if test="../../@name!='ComplexDataTypes'">
+                                <xsl:value-of select="$properties/SchemaCreationProperties/PackageNamespaces/Namespace[@name='ComplexDataTypes']/@prefix"/>
+                                <xsl:text>:</xsl:text>
+                            </xsl:if>
+                            <xsl:text>ReferenceType</xsl:text>
+                        </xsl:attribute>
+                        <xsl:for-each select="//packagedElement[@xmi:id=$paid and @xmi:type='uml:Association']">
+                            <xsl:attribute name="name">
+                                <xsl:value-of select="ddifunc:to-upper-cc(@name)"/>
+                            </xsl:attribute>
+                            <xsl:choose>
+                                <xsl:when test="lowerValue[1]/@value!=''">
+                                    <xsl:attribute name="minOccurs">
+                                        <xsl:value-of select="lowerValue[1]/@value"/>
+                                    </xsl:attribute>
+                                </xsl:when>
+                                <xsl:otherwise>
+                                    <xsl:attribute name="minOccurs">0</xsl:attribute>
+                                </xsl:otherwise>
+                            </xsl:choose>
+                            <xsl:if test="ownedEnd/upperValue[1]/@value!=''">
+                                <xsl:choose>
+                                    <xsl:when test="ownedEnd/upperValue[1]/@value='-1'">
+                                        <xsl:attribute name="maxOccurs">
+                                            <xsl:text>unbounded</xsl:text>
+                                        </xsl:attribute>
+                                    </xsl:when>
+                                    <xsl:otherwise>
+                                        <xsl:attribute name="maxOccurs">
+                                            <xsl:value-of select="ownedEnd/upperValue[1]/@value"/>
+                                        </xsl:attribute>
+                                    </xsl:otherwise>
+                                </xsl:choose>
+                            </xsl:if>
+                        </xsl:for-each>
+                    </xs:element>
+                </xsl:if>
+            </xsl:when>
+            <xsl:otherwise>
+                <!-- attribute -->
+                <xsl:variable name="nameCheck">
+                    <xsl:text>;</xsl:text>
+                    <xsl:value-of select="@name"/>
+                    <xsl:text>;</xsl:text>
+                </xsl:variable>
+                <xsl:if test="not(contains($leftOut, $nameCheck))">
+                    <xs:element>
                         <xsl:attribute name="name">
                             <xsl:value-of select="ddifunc:to-upper-cc(@name)"/>
                         </xsl:attribute>
+                        
+                        <!-- define xs type -->
+                        <xsl:variable name="xmitype" select="type/@xmi:type"/>
+                        <xsl:variable name="xmiidref" select="type/@xmi:idref"/>
+                        <xsl:choose>
+                            <xsl:when test="lower-case($xmitype) = 'uml:primitivetype'">
+                                <xsl:call-template name="defineType">
+                                    <xsl:with-param name="xmitype"
+                                        select="lower-case(tokenize(type/@href,'#')[last()])"/>
+                                    <xsl:with-param name="package" select="../../@name"/>
+                                </xsl:call-template>
+                            </xsl:when>
+                            <xsl:when test="$xmitype != ''">
+                                <xsl:call-template name="defineType">
+                                    <xsl:with-param name="xmitype" select="$xmitype"/>
+                                    <xsl:with-param name="package" select="../../@name"/>
+                                </xsl:call-template>
+                            </xsl:when>
+                            <xsl:otherwise>
+                                <xsl:call-template name="defineType">
+                                    <xsl:with-param name="xmitype" select="$xmiidref"/>
+                                    <xsl:with-param name="package" select="../../@name"/>
+                                </xsl:call-template>
+                            </xsl:otherwise>
+                        </xsl:choose>
+                        
+                        <!-- define min - max -->
                         <xsl:choose>
                             <xsl:when test="lowerValue[1]/@value!=''">
                                 <xsl:attribute name="minOccurs">
@@ -576,81 +705,22 @@
                                 <xsl:attribute name="minOccurs">0</xsl:attribute>
                             </xsl:otherwise>
                         </xsl:choose>
-                        <xsl:if test="ownedEnd/upperValue[1]/@value!=''">
+                        <xsl:if test="upperValue[1]/@value!=''">
                             <xsl:choose>
-                                <xsl:when test="ownedEnd/upperValue[1]/@value='-1'">
+                                <xsl:when test="upperValue[1]/@value='-1'">
                                     <xsl:attribute name="maxOccurs">
                                         <xsl:text>unbounded</xsl:text>
                                     </xsl:attribute>
                                 </xsl:when>
                                 <xsl:otherwise>
                                     <xsl:attribute name="maxOccurs">
-                                        <xsl:value-of select="ownedEnd/upperValue[1]/@value"/>
+                                        <xsl:value-of select="upperValue[1]/@value"/>
                                     </xsl:attribute>
                                 </xsl:otherwise>
                             </xsl:choose>
                         </xsl:if>
-                    </xsl:for-each>
-                </xs:element>
-            </xsl:when>
-            <xsl:otherwise>
-                <!-- attribute -->
-                <xs:element>
-                    <xsl:attribute name="name">
-                        <xsl:value-of select="ddifunc:to-upper-cc(@name)"/>
-                    </xsl:attribute>
-
-                    <!-- define xs type -->
-                    <xsl:variable name="xmitype" select="type/@xmi:type"/>
-                    <xsl:variable name="xmiidref" select="type/@xmi:idref"/>
-                    <xsl:choose>
-                        <xsl:when test="lower-case($xmitype) = 'uml:primitivetype'">
-                            <xsl:call-template name="defineType">
-                                <xsl:with-param name="xmitype"
-                                    select="lower-case(tokenize(type/@href,'#')[last()])"/>
-                                <xsl:with-param name="package" select="../../@name"/>
-                            </xsl:call-template>
-                        </xsl:when>
-                        <xsl:when test="$xmitype != ''">
-                            <xsl:call-template name="defineType">
-                                <xsl:with-param name="xmitype" select="$xmitype"/>
-                                <xsl:with-param name="package" select="../../@name"/>
-                            </xsl:call-template>
-                        </xsl:when>
-                        <xsl:otherwise>
-                            <xsl:call-template name="defineType">
-                                <xsl:with-param name="xmitype" select="$xmiidref"/>
-                                <xsl:with-param name="package" select="../../@name"/>
-                            </xsl:call-template>
-                        </xsl:otherwise>
-                    </xsl:choose>
-
-                    <!-- define min - max -->
-                    <xsl:choose>
-                        <xsl:when test="lowerValue[1]/@value!=''">
-                            <xsl:attribute name="minOccurs">
-                                <xsl:value-of select="lowerValue[1]/@value"/>
-                            </xsl:attribute>
-                        </xsl:when>
-                        <xsl:otherwise>
-                            <xsl:attribute name="minOccurs">0</xsl:attribute>
-                        </xsl:otherwise>
-                    </xsl:choose>
-                    <xsl:if test="upperValue[1]/@value!=''">
-                        <xsl:choose>
-                            <xsl:when test="upperValue[1]/@value='-1'">
-                                <xsl:attribute name="maxOccurs">
-                                    <xsl:text>unbounded</xsl:text>
-                                </xsl:attribute>
-                            </xsl:when>
-                            <xsl:otherwise>
-                                <xsl:attribute name="maxOccurs">
-                                    <xsl:value-of select="upperValue[1]/@value"/>
-                                </xsl:attribute>
-                            </xsl:otherwise>
-                        </xsl:choose>
-                    </xsl:if>
-                </xs:element>
+                    </xs:element>
+                </xsl:if>
             </xsl:otherwise>
         </xsl:choose>
     </xsl:template>
@@ -729,5 +799,54 @@
                 </xsl:otherwise>
             </xsl:choose>
         </xsl:attribute>
+    </xsl:template>
+    
+    <xsl:template name="determineOverride">
+        <xsl:param name="source"/>
+        <xsl:param name="ancestor"/>
+        <xsl:for-each select="$source/ownedAttribute[@xmi:type='uml:Property']">
+            <xsl:variable name="name" select="@name"/>
+            <xsl:choose>
+                <xsl:when test="@aggregation or @association">
+                    <xsl:variable name="middleName">
+                        <xsl:text>_</xsl:text>
+                        <xsl:value-of select="substring-before(substring-after(@association, '_'), '_')"/>
+                        <xsl:text>_</xsl:text>
+                    </xsl:variable>
+                    <xsl:if test="$ancestor/ownedAttribute[@xmi:type='uml:Property' and contains(@association, $middleName)]">
+                        <xsl:text>;</xsl:text>
+                        <xsl:value-of select="$middleName"/>
+                        <xsl:text>; </xsl:text>
+                    </xsl:if>
+                </xsl:when>
+                <xsl:otherwise>
+                    <xsl:if test="$ancestor/ownedAttribute[@xmi:type='uml:Property' and @name=$name]">
+                        <xsl:text>;</xsl:text>
+                        <xsl:value-of select="$name"/>
+                        <xsl:text>; </xsl:text>
+                    </xsl:if>
+                </xsl:otherwise>
+            </xsl:choose>
+        </xsl:for-each>
+        <xsl:if test="$ancestor/generalization/@general">
+            <xsl:variable name="gid" select="$ancestor/generalization/@general"></xsl:variable>
+            <xsl:call-template name="determineOverride">
+                <xsl:with-param name="source" select="$source"/>
+                <xsl:with-param name="ancestor" select="//packagedElement[@xmi:id=$gid]"/>
+            </xsl:call-template>
+        </xsl:if>
+    </xsl:template>
+    
+    <xsl:template match="packagedElement" mode="fillUpWhatsLeft">
+        <xsl:param name="leftOut"/>
+        <xsl:apply-templates select="ownedAttribute[@xmi:type='uml:Property' and not(ends-with(type/@href,'anguage') or ends-with(type/@xmi:type,'anguage') or ends-with(@xmi:type,'anguage'))]">
+            <xsl:with-param name="leftOut" select="$leftOut"/>
+        </xsl:apply-templates>
+        <xsl:if test="generalization/@general">
+            <xsl:variable name="gid" select="generalization/@general"></xsl:variable>
+            <xsl:apply-templates select="//packagedElement[@xmi:id=$gid]" mode="fillUpWhatsLeft">
+                <xsl:with-param name="leftOut" select="$leftOut"/>
+            </xsl:apply-templates>
+        </xsl:if>
     </xsl:template>
 </xsl:stylesheet>
