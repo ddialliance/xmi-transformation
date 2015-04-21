@@ -5,7 +5,6 @@
         <Namespace location="DDI-Representations.xsd" prefix="repr" name="Representations"/>
         <Namespace location="DDI-DataCapture.xsd" prefix="datc" name="DataCapture"/>
         <Namespace location="DDI-Methodology.xsd" prefix="meth" name="Methodology"/>
-        <Namespace location="DDI-Primitives.xsd" prefix="prim" name="Primitives"/>
         <Namespace location="DDI-Discovery.xsd" prefix="disc" name="Discovery"/>
         <Namespace location="DDI-NewObjectsForDiscovery.xsd" prefix="nodisc" name="NewObjectsForDiscovery"/>
         <Namespace location="DDI-Agents.xsd" prefix="agen" name="Agents"/>

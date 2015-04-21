@@ -16,18 +16,25 @@
 	
     <!-- variables -->
     <xsl:variable name="properties" select="document('xsd-properties.xml')"/>
-	<xsl:variable name="stylesheetVersion">2.1.0</xsl:variable>
+	<xsl:variable name="stylesheetVersion">2.2.0</xsl:variable>
+    <xsl:variable name="includedPackages">
+        <xsl:for-each select="//packagedElement[@xmi:id='ddi4_model']/packagedElement[@xmi:type='uml:Package']">
+            <xsl:text>|</xsl:text>
+            <xsl:value-of select="@name"/>
+        </xsl:for-each>
+        <xsl:text>|</xsl:text>
+    </xsl:variable>
 
     <xsl:template match="xmi:XMI">
         <protocol>
             <xsl:comment>
-				<xsl:text>This file was created by xmi2xsd version </xsl:text>
+				<xsl:text>This file was creanguageated by xmi2xsd version </xsl:text>
 				<xsl:value-of select="$stylesheetVersion"/>
 			</xsl:comment>
             
         <xsl:apply-templates select="//packagedElement[@xmi:id='ddi4_model']/packagedElement[@xmi:type='uml:Package' and @name='ComplexDataTypes']"
             mode="datatypes"/>
-        <xsl:apply-templates select="//packagedElement[@xmi:id='ddi4_model']/packagedElement[@xmi:type='uml:Package' and @name!='ComplexDataTypes']"
+            <xsl:apply-templates select="//packagedElement[@xmi:id='ddi4_model']/packagedElement[@xmi:type='uml:Package' and @name!='ComplexDataTypes' and @name!='Primitives']"
             mode="package"/>
         <xsl:apply-templates select="//packagedElement[@xmi:id='ddi4_views']/packagedElement[@xmi:type='uml:Package']"
 			mode="view"/>
@@ -48,7 +55,9 @@
 				</xsl:attribute>
 				<xsl:namespace name="" select="concat('ddi:',lower-case($name),':4_0')"/>
 				<xsl:for-each select="$properties/SchemaCreationProperties/PackageNamespaces/Namespace">
-					<xsl:namespace name="{@prefix}" select="concat('ddi:',lower-case(@name),':4_0')"/>
+				    <xsl:if test="contains($includedPackages, concat('|',@name,'|'))">
+				        <xsl:namespace name="{@prefix}" select="concat('ddi:',lower-case(@name),':4_0')"/>
+				    </xsl:if>
 				</xsl:for-each>
 
 				<xsl:comment>
@@ -56,14 +65,16 @@
 					<xsl:value-of select="$stylesheetVersion"/>
 				</xsl:comment>
 			    <xsl:for-each select="$properties/SchemaCreationProperties/PackageNamespaces/Namespace">
-		            <xs:import>
-		                <xsl:attribute name="schemaLocation">
-		                    <xsl:value-of select="@location"/>
-		                </xsl:attribute>
-		                <xsl:attribute name="namespace">
-		                    <xsl:value-of select="concat('ddi:',lower-case(@name),':4_0')"/>
-		                </xsl:attribute>
-		            </xs:import>
+			        <xsl:if test="contains($includedPackages, concat('|',@name,'|'))">
+    		            <xs:import>
+    		                <xsl:attribute name="schemaLocation">
+    		                    <xsl:value-of select="@location"/>
+    		                </xsl:attribute>
+    		                <xsl:attribute name="namespace">
+    		                    <xsl:value-of select="concat('ddi:',lower-case(@name),':4_0')"/>
+    		                </xsl:attribute>
+    		            </xs:import>
+			        </xsl:if>
 			    </xsl:for-each>
 			    
 			    <xs:import namespace="http://www.w3.org/XML/1998/namespace" schemaLocation="xml.xsd"/>
@@ -127,29 +138,33 @@
                             <xsl:text>:4_0</xsl:text>
                         </xsl:attribute>
                         <xsl:for-each select="$properties/SchemaCreationProperties/PackageNamespaces/Namespace">
-                            <xsl:choose>
-                                <xsl:when test="@prefix=$prefix">
-                                    <xsl:namespace name="" select="concat('ddi:',lower-case(@name),':4_0')"/>
-                                </xsl:when>
-                                <xsl:otherwise>
-                                    <xsl:namespace name="{@prefix}" select="concat('ddi:',lower-case(@name),':4_0')"/>
-                                </xsl:otherwise>
-                            </xsl:choose>
+                            <xsl:if test="contains($includedPackages, concat('|',@name,'|'))">
+                                <xsl:choose>
+                                    <xsl:when test="@prefix=$prefix">
+                                        <xsl:namespace name="" select="concat('ddi:',lower-case(@name),':4_0')"/>
+                                    </xsl:when>
+                                    <xsl:otherwise>
+                                        <xsl:namespace name="{@prefix}" select="concat('ddi:',lower-case(@name),':4_0')"/>
+                                    </xsl:otherwise>
+                                </xsl:choose>
+                            </xsl:if>
                         </xsl:for-each>
                         <xsl:comment>
 					<xsl:text>This file was created by xmi2xsd version </xsl:text>
 					<xsl:value-of select="$stylesheetVersion"/>
 				</xsl:comment>
                         <xsl:for-each select="$properties/SchemaCreationProperties/PackageNamespaces/Namespace">
-                            <xsl:if test="@prefix!= $prefix">
-                                <xs:import>
-                                    <xsl:attribute name="schemaLocation">
-                                        <xsl:value-of select="@location"/>
-                                    </xsl:attribute>
-                                    <xsl:attribute name="namespace">
-                                        <xsl:value-of select="concat('ddi:',lower-case(@name),':4_0')"/>
-                                    </xsl:attribute>
-                                </xs:import>
+                            <xsl:if test="contains($includedPackages, concat('|',@name,'|'))">
+                                <xsl:if test="@prefix!= $prefix">
+                                    <xs:import>
+                                        <xsl:attribute name="schemaLocation">
+                                            <xsl:value-of select="@location"/>
+                                        </xsl:attribute>
+                                        <xsl:attribute name="namespace">
+                                            <xsl:value-of select="concat('ddi:',lower-case(@name),':4_0')"/>
+                                        </xsl:attribute>
+                                    </xs:import>
+                                </xsl:if>
                             </xsl:if>
                         </xsl:for-each>
                         
@@ -175,29 +190,33 @@
                     <xsl:text>:4_0</xsl:text>
                 </xsl:attribute>
                 <xsl:for-each select="$properties/SchemaCreationProperties/PackageNamespaces/Namespace">
-                    <xsl:choose>
-                        <xsl:when test="@prefix=$prefix">
-                            <xsl:namespace name="" select="concat('ddi:',lower-case(@name),':4_0')"/>
-                        </xsl:when>
-                        <xsl:otherwise>
-                            <xsl:namespace name="{@prefix}" select="concat('ddi:',lower-case(@name),':4_0')"/>
-                        </xsl:otherwise>
-                    </xsl:choose>
+                    <xsl:if test="contains($includedPackages, concat('|',@name,'|'))">
+                        <xsl:choose>
+                            <xsl:when test="@prefix=$prefix">
+                                <xsl:namespace name="" select="concat('ddi:',lower-case(@name),':4_0')"/>
+                            </xsl:when>
+                            <xsl:otherwise>
+                                <xsl:namespace name="{@prefix}" select="concat('ddi:',lower-case(@name),':4_0')"/>
+                            </xsl:otherwise>
+                        </xsl:choose>
+                    </xsl:if>
                 </xsl:for-each>
                 <xsl:comment>
 					<xsl:text>This file was created by xmi2xsd version </xsl:text>
 					<xsl:value-of select="$stylesheetVersion"/>
 				</xsl:comment>
                 <xsl:for-each select="$properties/SchemaCreationProperties/PackageNamespaces/Namespace">
-                    <xsl:if test="@prefix!= $prefix">
-                        <xs:import>
-                            <xsl:attribute name="schemaLocation">
-                                <xsl:value-of select="@location"/>
-                            </xsl:attribute>
-                            <xsl:attribute name="namespace">
-                                <xsl:value-of select="concat('ddi:',lower-case(@name),':4_0')"/>
-                            </xsl:attribute>
-                        </xs:import>
+                    <xsl:if test="contains($includedPackages, concat('|',@name,'|'))">
+                        <xsl:if test="@prefix!= $prefix">
+                            <xs:import>
+                                <xsl:attribute name="schemaLocation">
+                                    <xsl:value-of select="@location"/>
+                                </xsl:attribute>
+                                <xsl:attribute name="namespace">
+                                    <xsl:value-of select="concat('ddi:',lower-case(@name),':4_0')"/>
+                                </xsl:attribute>
+                            </xs:import>
+                        </xsl:if>
                     </xsl:if>
                 </xsl:for-each>
                 
@@ -297,12 +316,27 @@
     
     <xsl:template match="packagedElement" mode="isSimple">
         <xsl:choose>
-            <xsl:when test="ownedAttribute[(@name='content' and type/@xmi:type='uml:PrimitiveType') or type/@xmi:idref='xhtml:BlkNoForm.mix']">
+            <xsl:when test="ownedAttribute[(@name='content' and type/@xmi:type='uml:PrimitiveType' and not(contains(type/@href, 'anyURI'))) or type/@xmi:idref='xhtml:BlkNoForm.mix']">
                 <xsl:text>true</xsl:text>
+            </xsl:when>
+            <xsl:when test="ownedAttribute[type/@xmi:type!='uml:PrimitiveType']">
+                <xsl:text>false</xsl:text>
             </xsl:when>
             <xsl:when test="generalization/@general">
                 <xsl:variable name="pid" select="generalization/@general"/>
                 <xsl:apply-templates select="//packagedElement[@xmi:id=$pid]" mode="isSimple"/>
+            </xsl:when>
+        </xsl:choose>
+    </xsl:template>
+    
+    <xsl:template match="packagedElement" mode="isXHMTL">
+        <xsl:choose>
+            <xsl:when test="ownedAttribute[type/@xmi:idref='xhtml:BlkNoForm.mix']">
+                <xsl:text>true</xsl:text>
+            </xsl:when>
+            <xsl:when test="generalization/@general">
+                <xsl:variable name="pid" select="generalization/@general"/>
+                <xsl:apply-templates select="//packagedElement[@xmi:id=$pid]" mode="isXHMTL"/>
             </xsl:when>
         </xsl:choose>
     </xsl:template>
@@ -329,7 +363,40 @@
     </xsl:template>
     
     <xsl:template match="packagedElement" mode="simple">
+        <xsl:variable name="paid">
+            <xsl:value-of select="generalization/@general"/>
+        </xsl:variable>
+        <xsl:variable name="isParentXHMLT">
+            <xsl:apply-templates select="//packagedElement[@xmi:id=$paid]" mode="isXHMTL"/>
+        </xsl:variable>
+        <xsl:variable name="tmpname" select="@name"/>
         <xsl:choose>
+            <xsl:when test="$isParentXHMLT='true'">
+                <xs:complexType mixed="true">
+                    <xsl:attribute name="name">
+                        <xsl:value-of select="@name"/>
+                        <xsl:text>Type</xsl:text>
+                    </xsl:attribute>
+                    <xs:complexContent>
+                        <!-- documentation -->
+                        <xs:annotation>
+                            <xs:documentation>
+                                <xsl:value-of select="//*/element[@name=$tmpname]/properties/@documentation"/>
+                            </xs:documentation>
+                        </xs:annotation>
+                        <xs:extension>
+                            <xsl:attribute name="base">
+                                <xsl:value-of select="//packagedElement[@xmi:id=$paid]/@name"/>
+                                <xsl:if test="generalization/@general='Reference'">
+                                    <xsl:text>Reference</xsl:text>
+                                </xsl:if>
+                                <xsl:text>Type</xsl:text>
+                            </xsl:attribute>
+                            <xsl:apply-templates select="ownedAttribute[@name!='content']" mode="attribute"/>
+                        </xs:extension>
+                    </xs:complexContent>
+                </xs:complexType>
+            </xsl:when>
             <xsl:when test="count(ownedAttribute[@xmi:type='uml:Property'])=1 and ownedAttribute[@name='content']">
                 <xs:simpleType>
                     <xsl:attribute name="name">
