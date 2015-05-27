@@ -34,7 +34,7 @@
             
         <xsl:apply-templates select="//packagedElement[@xmi:id='ddi4_model']/packagedElement[@xmi:type='uml:Package' and @name='ComplexDataTypes']"
             mode="datatypes"/>
-            <xsl:apply-templates select="//packagedElement[@xmi:id='ddi4_model']/packagedElement[@xmi:type='uml:Package' and @name!='ComplexDataTypes' and @name!='Primitives']"
+		<xsl:apply-templates select="//packagedElement[@xmi:id='ddi4_model']/packagedElement[@xmi:type='uml:Package' and @name!='ComplexDataTypes' and @name!='Primitives']"
             mode="package"/>
         <xsl:apply-templates select="//packagedElement[@xmi:id='ddi4_views']/packagedElement[@xmi:type='uml:Package']"
 			mode="view"/>
@@ -316,11 +316,11 @@
     
     <xsl:template match="packagedElement" mode="isSimple">
         <xsl:choose>
-            <xsl:when test="ownedAttribute[(@name='content' and type/@xmi:type='uml:PrimitiveType' and not(contains(type/@href, 'anyURI'))) or type/@xmi:idref='xhtml:BlkNoForm.mix']">
-                <xsl:text>true</xsl:text>
-            </xsl:when>
             <xsl:when test="ownedAttribute[type/@xmi:type!='uml:PrimitiveType']">
                 <xsl:text>false</xsl:text>
+            </xsl:when>
+            <xsl:when test="ownedAttribute[(@name='content' and type/@xmi:type='uml:PrimitiveType' and not(contains(type/@href, 'anyURI'))) or type/@xmi:idref='xhtml:BlkNoForm.mix']">
+                <xsl:text>true</xsl:text>
             </xsl:when>
             <xsl:when test="generalization/@general">
                 <xsl:variable name="pid" select="generalization/@general"/>
@@ -660,7 +660,7 @@
                         </xsl:attribute>
                         <xsl:attribute name="use">
                             <xsl:choose>
-                                <xsl:when test="lowerValue[1]/@value='1'"><xsl:text>required</xsl:text></xsl:when>
+                                <xsl:when test="lowerValue/@value='1'"><xsl:text>required</xsl:text></xsl:when>
                                 <xsl:otherwise><xsl:text>optional</xsl:text></xsl:otherwise>
                             </xsl:choose>
                         </xsl:attribute>
@@ -696,9 +696,9 @@
                                 <xsl:value-of select="ddifunc:to-upper-cc(@name)"/>
                             </xsl:attribute>
                             <xsl:choose>
-                                <xsl:when test="lowerValue[1]/@value!=''">
+                                <xsl:when test="ownedEnd/lowerValue[1]/@value!=''">
                                     <xsl:attribute name="minOccurs">
-                                        <xsl:value-of select="lowerValue[1]/@value"/>
+                                        <xsl:value-of select="ownedEnd/lowerValue[1]/@value"/>
                                     </xsl:attribute>
                                 </xsl:when>
                                 <xsl:otherwise>
@@ -763,25 +763,25 @@
                         
                         <!-- define min - max -->
                         <xsl:choose>
-                            <xsl:when test="lowerValue[1]/@value!=''">
+                            <xsl:when test="ownedEnd/lowerValue[1]/@value!=''">
                                 <xsl:attribute name="minOccurs">
-                                    <xsl:value-of select="lowerValue[1]/@value"/>
+                                    <xsl:value-of select="ownedEnd/lowerValue[1]/@value"/>
                                 </xsl:attribute>
                             </xsl:when>
                             <xsl:otherwise>
                                 <xsl:attribute name="minOccurs">0</xsl:attribute>
                             </xsl:otherwise>
                         </xsl:choose>
-                        <xsl:if test="upperValue[1]/@value!=''">
+                        <xsl:if test="ownedEnd/upperValue[1]/@value!=''">
                             <xsl:choose>
-                                <xsl:when test="upperValue[1]/@value='-1'">
+                                <xsl:when test="ownedEnd/upperValue[1]/@value='-1'">
                                     <xsl:attribute name="maxOccurs">
                                         <xsl:text>unbounded</xsl:text>
                                     </xsl:attribute>
                                 </xsl:when>
                                 <xsl:otherwise>
                                     <xsl:attribute name="maxOccurs">
-                                        <xsl:value-of select="upperValue[1]/@value"/>
+                                        <xsl:value-of select="ownedEnd/upperValue[1]/@value"/>
                                     </xsl:attribute>
                                 </xsl:otherwise>
                             </xsl:choose>
