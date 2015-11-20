@@ -20,6 +20,20 @@
         <Namespace location="DDI-PrescriptiveProcess.xsd" prefix="preproc" name="PrescriptiveProcess"/>
         <Namespace location="DDI-Identification.xsd"  prefix="id" name="Identification"/>
         <Namespace location="DDI-PhysicalDataDescription.xsd"  prefix="phdd" name="NewobjectsforPhysicalDataDescription"/>
+        <!-- New on 05.08.2015 -->
+        <Namespace location="DDI-CustomMetadata.xsd"  prefix="custmd" name="CustomMetadata"/>
+        <Namespace location="DDI-NewObjectsForSimpleInstruments.xsd"  prefix="simpi" name="NewObjectsForSimpleInstruments"/>
+        <Namespace location="DDI-SimpleDiscovery.xsd"  prefix="simpdisc" name="SimpleDiscovery"/>
+        <Namespace location="DDI-DDIDocument.xsd"  prefix="doc" name="DDIDocument"/>
+        <Namespace location="DDI-Comparison.xsd"  prefix="compa" name="Comparison"/>
+        <Namespace location="DDI-BaseObjects.xsd"  prefix="base" name="BaseObjects"/>
+        <Namespace location="DDI-DDIUtility.xsd"  prefix="ddiutil" name="DDIUtility"/>
+        <Namespace location="DDI-Correspondences.xsd"  prefix="corr" name="Correspondences"/>
+        <Namespace location="DDI-Sampling.xsd"  prefix="samp" name="Sampling"/>
+        <Namespace location="DDI-Qualitative.xsd"  prefix="qual" name="Qualitative"/>
+        <!--
+        <Namespace location="DDI-.xsd"  prefix="" name=""/>
+        -->
     </PackageNamespaces>
     <ViewNamespaces>
         <Namespace location="DDI-AgentsView.xsd"  prefix="agvw" name="AgentsView"/>
@@ -29,5 +43,7 @@
         <Namespace location="DDI-PhysicalDataDescriptionView.xsd"  prefix="phddvw" name="PhysicalDataDescriptionView"/>
         <Namespace location="DDI-SimpleCodebookView.xsd"  prefix="scvw" name="SimpleCodebookView"/>
         <Namespace location="DDI-SimpleInstrumentView.xsd"  prefix="scvw" name="SimpleInstrumentView"/>
+        <!-- New on 05.08.2015 -->
+        <Namespace location="DDI-SimpleMethodology.xsd"  prefix="smvw" name="SimpleMethodology"/>
     </ViewNamespaces>
 </SchemaCreationProperties>
